@@ -39,7 +39,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/setup" element={needsSetup ? <Setup onDone={() => setNeedsSetup(false)} /> : <Navigate to="/" replace />} />
-        <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login onLogin={(u) => setUser(u)} />} />
+        <Route path="/login" element={user ? <Navigate to="/" replace /> : needsSetup ? <Navigate to="/setup" replace /> : <Login onLogin={(u) => setUser(u)} />} />
         <Route path="/" element={user ? <Dashboard username={user} onLogout={() => setUser(null)} /> : <Navigate to={needsSetup ? '/setup' : '/login'} replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
