@@ -82,3 +82,18 @@ export async function patchSettings(updates) {
     body: JSON.stringify(updates)
   });
 }
+
+export async function getStats() {
+  return request('/api/admin/stats');
+}
+
+export async function getAdmins() {
+  return request('/api/admin/admins');
+}
+
+export async function createAdmin(username, password) {
+  return request('/api/admin/admins', {
+    method: 'POST',
+    body: JSON.stringify({ username, password })
+  });
+}

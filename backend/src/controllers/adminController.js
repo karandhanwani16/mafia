@@ -96,3 +96,63 @@ export async function createFirstAdmin(req, res) {
   });
   res.status(201).json({ message: 'Admin created. You can now log in.' });
 }
+
+export async function listAdmins(req, res) {
+  try {
+    const admins = await AdminUser.find({}).select('username createdAt').sort({ createdAt: 1 }).lean();
+    res.json({ admins: admins.map((a) => ({ username: a.username, createdAt: a.createdAt })) });
+  } catch (err) {
+    console.error('[admin listAdmins]', err?.message);
+    res.status(500).json({ error: 'Failed to list admins' });
+  }
+}
+
+export async function createAdmin(req, res) {
+  try {
+    const { username, password } = req.body;
+    if (!username?.trim() || !password || password.length < 8) {
+      return res.status(400).json({ error: 'Username and password (min 8 chars) required' });
+    }
+    const existing = await AdminUser.findOne({ username: username.trim().toLowerCase() });
+    if (existing) {
+      return res.status(409).json({ error: 'Username already taken' });
+    }
+    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+    await AdminUser.create({
+      username: username.trim().toLowerCase(),
+      passwordHash
+    });
+    res.status(201).json({ message: 'Admin added successfully.' });
+  } catch (err) {
+    console.error('[admin createAdmin]', err?.message);
+    res.status(500).json({ error: 'Failed to add admin' });
+  }
+}
+
+export async function getStats(req, res) {
+  try {
+    const Room = (await import('../models/Room.js')).default;
+    const Game = (await import('../models/Game.js')).default;
+    const [roomCount, gameCount, waitingRooms, adminCount] = await Promise.all([
+      Room.countDocuments(),
+      Game.countDocuments(),
+      Room.countDocuments({ status: 'waiting' }),
+      AdminUser.countDocuments()
+    ]);
+    const settings = await getSettings();
+    res.json({
+      roomCount,
+      gameCount,
+      waitingRooms,
+      inProgressRooms: roomCount - waitingRooms,
+      adminCount,
+      testingMode: !!settings?.testingMode,
+      maintenanceMode: !!settings?.maintenanceMode,
+      maxPlayersMin: settings?.maxPlayersMin ?? 5,
+      maxPlayersMax: settings?.maxPlayersMax ?? 12
+    });
+  } catch (err) {
+    console.error('[admin getStats]', err?.message);
+    res.status(500).json({ error: 'Failed to load stats' });
+  }
+}
