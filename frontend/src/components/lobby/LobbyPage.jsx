@@ -183,25 +183,25 @@ const LobbyPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-gray-800 rounded-lg p-6 mb-6">
-        <h2 className="text-2xl font-bold text-white mb-4">Game Lobby</h2>
-        <div className="space-y-2 mb-6">
+      <div className="mafia-card p-6 mb-6">
+        <h2 className="font-display text-2xl font-bold text-mafia-gold mb-4 tracking-wide">Game Lobby</h2>
+        <div className="space-y-2 mb-6 p-4 bg-mafia-surface/80 rounded-lg border border-mafia-border">
           <div className="flex items-center justify-between">
-            <span className="text-gray-400">Room Code:</span>
-            <span className="text-2xl font-bold text-blue-400 font-mono">{currentRoom.roomCode}</span>
+            <span className="text-mafia-muted">Room Code</span>
+            <span className="text-2xl font-display font-bold text-mafia-gold font-mono tracking-widest">{currentRoom.roomCode}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-400">Players:</span>
-            <span className="text-white font-semibold">{players.length} / {currentRoom.maxPlayers}</span>
+            <span className="text-mafia-muted">Players</span>
+            <span className="text-mafia-cream font-semibold">{players.length} / {currentRoom.maxPlayers}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-400">Status:</span>
-            <span className="text-white font-semibold capitalize">{status}</span>
+            <span className="text-mafia-muted">Status</span>
+            <span className="text-mafia-cream font-semibold capitalize">{status}</span>
           </div>
         </div>
 
         {players.length < minPlayers && (
-          <div className="bg-yellow-900 bg-opacity-50 border border-yellow-700 text-yellow-200 px-4 py-3 rounded mb-4">
+          <div className="bg-mafia-gold/10 border-2 border-mafia-gold-dim text-mafia-gold-light px-4 py-3 rounded-lg mb-4">
             Need at least {minPlayers} players to start (currently {players.length})
           </div>
         )}

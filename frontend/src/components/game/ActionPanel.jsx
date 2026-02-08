@@ -29,10 +29,10 @@ const ActionPanel = ({ role, onSubmit }) => {
   }
 
   return (
-    <div className="bg-gray-700 rounded-lg p-4 mb-4 animate-fade-in-up">
-      <h4 className="text-lg font-semibold text-white mb-2">Your Role: {roleInfo.name}</h4>
-      <p className="text-gray-300 text-sm mb-2">{roleInfo.description}</p>
-      <p className="text-blue-400 text-sm font-semibold">Ability: {roleInfo.ability}</p>
+    <div className="bg-mafia-surface border-2 border-mafia-border rounded-lg p-4 mb-4 animate-fade-in-up">
+      <h4 className="font-display text-lg font-semibold text-mafia-gold mb-2">Your Role: {roleInfo.name}</h4>
+      <p className="text-mafia-cream text-sm mb-2">{roleInfo.description}</p>
+      <p className="text-mafia-gold-light text-sm font-semibold">Ability: {roleInfo.ability}</p>
     </div>
   );
 };

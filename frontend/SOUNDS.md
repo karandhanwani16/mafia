@@ -10,6 +10,8 @@ Use **MP3** (or update paths in `src/config/sounds.js` to match your format).
 
 | Key | File path (under `public/`) | When it plays | Suggestion |
 |-----|-----------------------------|----------------|------------|
+| **Background** |
+| `backgroundMusic` | `sounds/background-music.mp3` | Loops slowly in the background (toggle/volume in Game Controls) | Calm, low-energy loop (e.g. 30–90 s); avoid sudden changes. |
 | **UI** |
 | `uiClick` | `sounds/ui-click.mp3` | Button clicks (primary actions) | Short, soft click or tap (e.g. 50–150 ms). |
 | `uiTab` | `sounds/ui-tab.mp3` | Switching Create / Join Room tabs | Very short tick or whoosh. |
@@ -42,6 +44,7 @@ Create this folder and add your files:
 frontend/
   public/
     sounds/
+      background-music.mp3   # optional; slow looping ambient
       ui-click.mp3
       ui-tab.mp3
       game-start.mp3

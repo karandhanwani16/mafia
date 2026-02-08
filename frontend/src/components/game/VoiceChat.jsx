@@ -66,8 +66,8 @@ const VoiceChat = ({ roomId, username }) => {
               onClick={() => setMuted(!isMuted)}
               className={`flex items-center justify-center w-10 h-10 rounded-full transition-colors touch-manipulation ${
                 isMuted
-                  ? 'bg-red-600 hover:bg-red-700 text-white'
-                  : 'bg-gray-600 hover:bg-gray-500 text-white'
+                  ? 'bg-mafia-red hover:bg-mafia-red-light text-mafia-cream'
+                  : 'bg-mafia-surface border border-mafia-border hover:border-mafia-gold text-mafia-cream'
               }`}
               aria-label={isMuted ? 'Unmute microphone' : 'Mute microphone'}
               title={isMuted ? 'Unmute' : 'Mute'}
@@ -82,13 +82,13 @@ const VoiceChat = ({ roomId, username }) => {
                 </svg>
               )}
             </button>
-            <span className="text-gray-400 text-xs">
+            <span className="text-mafia-muted text-xs">
               {peerCount} {peerCount === 1 ? 'peer' : 'peers'}
             </span>
             <button
               type="button"
               onClick={leave}
-              className="px-3 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors touch-manipulation"
+              className="px-3 py-2 rounded-lg bg-mafia-red hover:bg-mafia-red-light text-mafia-cream text-sm font-medium transition-colors touch-manipulation border border-mafia-red"
               aria-label="Leave voice chat"
             >
               Leave voice

@@ -6,12 +6,12 @@ export const formatTime = (seconds) => {
 
 export const getRoleColor = (role) => {
   const colors = {
-    mafia: 'text-red-500',
-    civilian: 'text-blue-400',
-    doctor: 'text-green-400',
-    detective: 'text-yellow-400'
+    mafia: 'text-mafia-red-light',
+    civilian: 'text-mafia-cream',
+    doctor: 'text-mafia-success-light',
+    detective: 'text-mafia-gold-light'
   };
-  return colors[role] || 'text-gray-400';
+  return colors[role] || 'text-mafia-muted';
 };
 
 export const getRoleIcon = (role) => {

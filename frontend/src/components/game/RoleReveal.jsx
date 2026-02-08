@@ -46,12 +46,12 @@ const RoleReveal = ({ isOpen, onClose }) => {
         <div className={`text-6xl mb-4 animate-card-reveal animate-float ${getRoleColor(currentPlayer.role)}`}>
           {getRoleIcon(currentPlayer.role)}
         </div>
-        <h3 className="text-2xl font-bold text-white mb-2 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>{info.name}</h3>
-        <p className="text-gray-300 mb-4 animate-fade-in-up" style={{ animationDelay: '0.15s' }}>{info.description}</p>
+        <h3 className="font-display text-2xl font-bold text-mafia-gold mb-2 animate-fade-in-up tracking-wide" style={{ animationDelay: '0.1s' }}>{info.name}</h3>
+        <p className="text-mafia-cream mb-4 animate-fade-in-up" style={{ animationDelay: '0.15s' }}>{info.description}</p>
         {info.teammates && info.teammates.length > 0 && (
-          <div className="bg-gray-700 rounded p-3 mb-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <p className="text-red-400 font-semibold mb-2">Your Mafia Teammates:</p>
-            <ul className="text-white">
+          <div className="bg-mafia-surface border-2 border-mafia-red/50 rounded-lg p-3 mb-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <p className="text-mafia-red-light font-semibold mb-2">Your Mafia Teammates</p>
+            <ul className="text-mafia-cream">
               {info.teammates.map((name, idx) => (
                 <li key={idx}>{name}</li>
               ))}
@@ -60,7 +60,7 @@ const RoleReveal = ({ isOpen, onClose }) => {
         )}
         <button
           onClick={onClose}
-          className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-smooth hover-lift hover:scale-105 active:scale-95"
+          className="mt-4 px-6 py-2.5 bg-mafia-gold text-mafia-bg font-display font-semibold rounded-lg border-2 border-mafia-gold hover:bg-mafia-gold-light hover:border-mafia-gold-light transition-smooth hover-lift hover:scale-105 active:scale-95"
         >
           Continue
         </button>

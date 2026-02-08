@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* @import './animations.css'; */
+@import './animations.css';
 
 * {
   margin: 0;
@@ -11,15 +11,53 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Crimson Text', Georgia, serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #1a1a1a;
-  color: #ffffff;
+  background-color: #0d0a08;
+  color: #e8e4df;
+  background-image:
+    linear-gradient(180deg, rgba(201, 162, 39, 0.03) 0%, transparent 50%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 3px
+    );
 }
 
 #root {
   min-height: 100vh;
+}
+
+/* Mafia-themed form inputs */
+.mafia-input {
+  @apply w-full px-4 py-2.5 bg-mafia-surface border-2 border-mafia-border rounded text-mafia-cream placeholder-mafia-muted;
+  @apply focus:outline-none focus:border-mafia-gold focus:shadow-mafia-gold transition-all duration-200;
+}
+.mafia-input:hover {
+  @apply border-mafia-border-light;
+}
+
+/* Card / dossier style */
+.mafia-card {
+  @apply bg-mafia-card border-2 border-mafia-border rounded-lg shadow-mafia;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4), inset 0 1px 0 rgba(201, 162, 39, 0.06);
+}
+
+/* Tab style (dossier tabs) */
+.mafia-tab {
+  @apply flex-1 py-2.5 px-4 font-display font-semibold text-lg transition-all duration-200 border-b-2;
+}
+.mafia-tab-active {
+  @apply text-mafia-gold border-mafia-gold;
+}
+.mafia-tab-inactive {
+  @apply text-mafia-muted border-transparent hover:text-mafia-cream hover:border-mafia-border;
+}
+
+/* Label */
+.mafia-label {
+  @apply block text-mafia-muted font-medium mb-1.5 tracking-wide;
 }

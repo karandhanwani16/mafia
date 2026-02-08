@@ -1,9 +1,9 @@
 import { getRoleColor, getRoleIcon } from '../../utils/helpers';
 
 const PlayerCard = ({ player, onClick, selected = false, clickable = false, showRole = false }) => {
-  const baseClasses = 'bg-gray-700 rounded-lg p-4 transition-smooth';
-  const clickableClasses = clickable ? 'cursor-pointer hover:bg-gray-600 hover-lift' : '';
-  const selectedClasses = selected ? 'ring-2 ring-blue-500 bg-gray-600 ring-offset-2 ring-offset-gray-800' : '';
+  const baseClasses = 'bg-mafia-surface border-2 border-mafia-border rounded-lg p-4 transition-smooth';
+  const clickableClasses = clickable ? 'cursor-pointer hover:border-mafia-gold hover:bg-mafia-card hover-lift' : '';
+  const selectedClasses = selected ? 'ring-2 ring-mafia-gold border-mafia-gold bg-mafia-card ring-offset-2 ring-offset-mafia-bg' : '';
   const deadClasses = !player.isAlive ? 'opacity-50' : '';
 
   return (
@@ -12,11 +12,11 @@ const PlayerCard = ({ player, onClick, selected = false, clickable = false, show
       onClick={clickable ? onClick : undefined}
     >
       <div className="flex items-center justify-between mb-2">
-        <span className="text-white font-semibold">{player.username}</span>
+        <span className="text-mafia-cream font-semibold">{player.username}</span>
         {player.isAlive ? (
-          <span className="text-green-400 text-sm">●</span>
+          <span className="text-mafia-success text-sm">●</span>
         ) : (
-          <span className="text-red-400 text-sm">✕</span>
+          <span className="text-mafia-red-light text-sm">✕</span>
         )}
       </div>
       {showRole && player.role && (

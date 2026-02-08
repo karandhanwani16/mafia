@@ -139,8 +139,8 @@ const GamePage = () => {
   if (!currentPlayer?.playerId) {
     return (
       <div className="max-w-md mx-auto text-center py-12">
-        <p className="text-gray-400 mb-4">Session not found. Please go back and join or create a room.</p>
-        <a href="/" className="text-blue-400 hover:underline">Return to home</a>
+        <p className="text-mafia-muted mb-4">Session not found. Please go back and join or create a room.</p>
+        <a href="/" className="text-mafia-gold hover:text-mafia-gold-light transition-colors">Return to home</a>
       </div>
     );
   }
@@ -152,8 +152,8 @@ const GamePage = () => {
   if (error && !phase) {
     return (
       <div className="max-w-md mx-auto text-center py-12">
-        <p className="text-red-400 mb-4">{error}</p>
-        <a href="/" className="text-blue-400 hover:underline">Return to home</a>
+        <p className="text-mafia-red-light mb-4">{error}</p>
+        <a href="/" className="text-mafia-gold hover:text-mafia-gold-light transition-colors">Return to home</a>
       </div>
     );
   }
@@ -163,32 +163,32 @@ const GamePage = () => {
       <RoleReveal isOpen={showRoleReveal} onClose={() => setShowRoleReveal(false)} />
     <div className="max-w-6xl mx-auto animate-fade-in">
       <div
-        className={`bg-gray-800 rounded-lg p-6 mb-4 transition-smooth ${
-          phase === GAME_PHASES.NIGHT ? 'animate-glow-night' : 'animate-glow-day'
+        className={`mafia-card p-6 mb-4 transition-smooth ${
+          phase === GAME_PHASES.NIGHT ? 'animate-glow-night border-mafia-gold/20' : 'animate-glow-day border-mafia-gold/30'
         }`}
       >
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-3 sm:gap-0 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-2xl font-bold text-white">
-              Round {round} - {phase === GAME_PHASES.NIGHT ? '🌙 Night' : '☀️ Day'}
+            <h2 className="font-display text-2xl font-bold text-mafia-gold tracking-wide">
+              Round {round} — {phase === GAME_PHASES.NIGHT ? '🌙 Night' : '☀️ Day'}
             </h2>
             <div className="flex flex-wrap items-center gap-2 sm:gap-4">
               <div className="flex items-center gap-2">
-                <span className="text-gray-400 text-sm">You:</span>
-                <span className="text-white font-medium truncate max-w-[120px] sm:max-w-[180px]" title={currentPlayer?.username}>
+                <span className="text-mafia-muted text-sm">You:</span>
+                <span className="text-mafia-cream font-medium truncate max-w-[120px] sm:max-w-[180px]" title={currentPlayer?.username}>
                   {currentPlayer?.username || '—'}
                 </span>
               </div>
               {currentPlayer?.role && (
                 <span
-                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-gray-700/80 ${getRoleColor(currentPlayer.role)}`}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-mafia-surface border border-mafia-border ${getRoleColor(currentPlayer.role)}`}
                   title={`Your role: ${getRoleDisplayName(currentPlayer.role)}`}
                 >
                   <span aria-hidden>{getRoleIcon(currentPlayer.role)}</span>
                   <span>{getRoleDisplayName(currentPlayer.role)}</span>
                 </span>
               )}
-              <div className="text-gray-400 text-sm sm:ml-auto">
+              <div className="text-mafia-muted text-sm sm:ml-auto">
                 {players.filter(p => p.isAlive).length} players alive
               </div>
             </div>
@@ -218,7 +218,7 @@ const GamePage = () => {
         <button
           type="button"
           onClick={() => setChatOpen(true)}
-          className="flex items-center justify-center w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-smooth hover:scale-105 active:scale-95 touch-manipulation"
+          className="flex items-center justify-center w-14 h-14 rounded-full bg-mafia-gold hover:bg-mafia-gold-light text-mafia-bg shadow-mafia-gold transition-smooth hover:scale-105 active:scale-95 touch-manipulation"
           aria-label="Open chat"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -235,8 +235,8 @@ const GamePage = () => {
             className="absolute inset-0 bg-black/60 touch-manipulation"
             onClick={() => setChatOpen(false)}
           />
-          <div className="relative bg-gray-800 rounded-t-2xl shadow-2xl flex flex-col max-h-[85vh] animate-fade-in-up">
-            <div className="flex-shrink-0 h-1 w-12 mx-auto mt-2 rounded-full bg-gray-600" aria-hidden />
+          <div className="relative bg-mafia-card border-t-2 border-x-2 border-mafia-border rounded-t-2xl shadow-2xl flex flex-col max-h-[85vh] animate-fade-in-up">
+            <div className="flex-shrink-0 h-1 w-12 mx-auto mt-2 rounded-full bg-mafia-border" aria-hidden />
             <div className="flex-1 min-h-0 flex flex-col p-4 pb-6" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
               <Chat compact onClose={() => setChatOpen(false)} />
             </div>

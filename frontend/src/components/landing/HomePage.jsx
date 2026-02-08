@@ -66,24 +66,20 @@ const HomePage = () => {
   return (
     <div className="max-w-2xl mx-auto animate-fade-in">
       <div className="text-center mb-8 animate-fade-in-up">
-        <h1 className="text-4xl font-bold text-white mb-4">🎭 Mafia Game</h1>
-        <p className="text-gray-400 text-lg">
-          A social deduction game where players work together to find the mafia
+        <h1 className="font-display text-4xl font-bold text-mafia-gold mb-3 tracking-wide">🎭 Mafia</h1>
+        <p className="text-mafia-muted text-lg">
+          A social deduction game. Find the mafia—or stay hidden.
         </p>
       </div>
 
-      <div className="bg-gray-800 rounded-lg p-6 animate-fade-in-up" style={{ animationDelay: '0.08s' }}>
-        <div className="flex border-b border-gray-700 mb-6">
+      <div className="mafia-card p-6 animate-fade-in-up" style={{ animationDelay: '0.08s' }}>
+        <div className="flex border-b-2 border-mafia-border mb-6 -mx-6 px-6">
           <button
             onClick={() => {
               setActiveTab('create');
               playSound('uiTab');
             }}
-            className={`flex-1 py-2 px-4 font-semibold transition-smooth ${
-              activeTab === 'create'
-                ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-gray-400 hover:text-white'
-            }`}
+            className={`mafia-tab ${activeTab === 'create' ? 'mafia-tab-active' : 'mafia-tab-inactive'}`}
           >
             Create Room
           </button>
@@ -92,18 +88,14 @@ const HomePage = () => {
               setActiveTab('join');
               playSound('uiTab');
             }}
-            className={`flex-1 py-2 px-4 font-semibold transition-smooth ${
-              activeTab === 'join'
-                ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-gray-400 hover:text-white'
-            }`}
+            className={`mafia-tab ${activeTab === 'join' ? 'mafia-tab-active' : 'mafia-tab-inactive'}`}
           >
             Join Room
           </button>
         </div>
 
         {error && (
-          <div className="bg-red-900 bg-opacity-50 border border-red-700 text-red-200 px-4 py-3 rounded mb-4">
+          <div className="bg-mafia-red/30 border-2 border-mafia-red text-mafia-cream px-4 py-3 rounded-lg mb-4">
             {error}
           </div>
         )}
@@ -111,24 +103,24 @@ const HomePage = () => {
         {activeTab === 'create' ? (
           <form onSubmit={handleCreateRoom} className="space-y-4">
             <div>
-              <label className="block text-gray-300 mb-2">Your Name</label>
+              <label className="mafia-label">Your Name</label>
               <input
                 type="text"
                 value={createForm.hostName}
                 onChange={(e) => setCreateForm({ ...createForm, hostName: e.target.value })}
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
+                className="mafia-input"
                 placeholder="Enter your name"
                 required
                 maxLength={20}
               />
             </div>
             <div>
-              <label className="block text-gray-300 mb-2">Max Players ({appConfig.maxPlayersMin}-{appConfig.maxPlayersMax})</label>
+              <label className="mafia-label">Max Players ({appConfig.maxPlayersMin}–{appConfig.maxPlayersMax})</label>
               <input
                 type="number"
                 value={createForm.maxPlayers}
                 onChange={(e) => setCreateForm({ ...createForm, maxPlayers: parseInt(e.target.value) })}
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
+                className="mafia-input"
                 min={appConfig.maxPlayersMin}
                 max={appConfig.maxPlayersMax}
                 required
@@ -141,24 +133,24 @@ const HomePage = () => {
         ) : (
           <form onSubmit={handleJoinRoom} className="space-y-4">
             <div>
-              <label className="block text-gray-300 mb-2">Room Code</label>
+              <label className="mafia-label">Room Code</label>
               <input
                 type="text"
                 value={joinForm.roomCode}
                 onChange={(e) => setJoinForm({ ...joinForm, roomCode: e.target.value.toUpperCase() })}
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500 uppercase"
-                placeholder="Enter room code"
+                className="mafia-input uppercase tracking-widest"
+                placeholder="e.g. ABC123"
                 required
                 maxLength={6}
               />
             </div>
             <div>
-              <label className="block text-gray-300 mb-2">Your Name</label>
+              <label className="mafia-label">Your Name</label>
               <input
                 type="text"
                 value={joinForm.playerName}
                 onChange={(e) => setJoinForm({ ...joinForm, playerName: e.target.value })}
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
+                className="mafia-input"
                 placeholder="Enter your name"
                 required
                 maxLength={20}

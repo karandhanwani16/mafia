@@ -4,9 +4,14 @@
  * Paths are relative to the app origin (e.g. in dev: http://localhost:5173/sounds/...).
  */
 
+import { getSfxMultiplier } from './soundManager.js';
+
 const SOUND_BASE = '/sounds';
 
 export const SOUND_PATHS = {
+  // Background (looping, controlled via Game Controls)
+  backgroundMusic: `${SOUND_BASE}/background-music.mp3`,
+
   // UI
   uiClick: `${SOUND_BASE}/ui-click.mp3`,
   uiTab: `${SOUND_BASE}/ui-tab.mp3`,
@@ -36,19 +41,25 @@ export const SOUND_PATHS = {
 };
 
 /**
- * Play a sound by key. No-op if the file is missing or playback fails.
+ * Play a sound by key. Respects Game Controls SFX volume and mute.
+ * No-op if the file is missing or playback fails.
  * @param {string} key - Key from SOUND_PATHS (e.g. 'uiClick', 'gameStart')
- * @param {{ volume?: number }} options - Optional volume 0–1
+ * @param {{ volume?: number }} options - Optional volume 0–1 (multiplied by SFX volume)
  */
 export function playSound(key, options = {}) {
   const path = SOUND_PATHS[key];
   if (!path) return;
 
+  const sfx = getSfxMultiplier();
+  if (sfx <= 0) return;
+
   try {
     const audio = new Audio(path);
+    let vol = sfx;
     if (typeof options.volume === 'number') {
-      audio.volume = Math.max(0, Math.min(1, options.volume));
+      vol *= Math.max(0, Math.min(1, options.volume));
     }
+    audio.volume = vol;
     audio.play().catch(() => {});
   } catch {
     // ignore

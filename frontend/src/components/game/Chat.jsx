@@ -50,14 +50,14 @@ const Chat = ({ onClose, compact = false }) => {
   const isNightPhase = phase === 'night';
 
   return (
-    <div className={`bg-gray-800 rounded-lg p-4 flex flex-col ${compact ? 'h-full min-h-0' : 'h-[600px]'}`}>
+    <div className={`mafia-card p-4 flex flex-col ${compact ? 'h-full min-h-0' : 'h-[600px]'}`}>
       <div className="flex items-center justify-between mb-4 shrink-0">
-        <h3 className="text-lg font-bold text-white">Chat</h3>
+        <h3 className="font-display text-lg font-bold text-mafia-gold">Chat</h3>
         {onClose && (
           <button
             type="button"
             onClick={onClose}
-            className="p-2 -m-2 text-gray-400 hover:text-white transition-colors rounded-full touch-manipulation"
+            className="p-2 -m-2 text-mafia-muted hover:text-mafia-gold transition-colors rounded-full touch-manipulation"
             aria-label="Close chat"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,26 +67,26 @@ const Chat = ({ onClose, compact = false }) => {
         )}
       </div>
       {error && (
-        <div className="mb-2 px-3 py-2 bg-red-900/50 border border-red-700 rounded text-red-200 text-sm">
+        <div className="mb-2 px-3 py-2 bg-mafia-red/30 border border-mafia-red rounded text-mafia-cream text-sm">
           {error}
         </div>
       )}
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden mb-4 space-y-2 overscroll-contain">
         {messages.map((msg, idx) => (
-          <div key={`${msg.timestamp}-${msg.playerId}-${idx}`} className="bg-gray-700 rounded p-2 animate-slide-in-right">
+          <div key={`${msg.timestamp}-${msg.playerId}-${idx}`} className="bg-mafia-surface border border-mafia-border rounded p-2 animate-slide-in-right">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-blue-400 font-semibold text-sm">{msg.username}</span>
-              <span className="text-gray-500 text-xs">
+              <span className="text-mafia-gold font-semibold text-sm">{msg.username}</span>
+              <span className="text-mafia-muted text-xs">
                 {new Date(msg.timestamp).toLocaleTimeString()}
               </span>
             </div>
-            <p className="text-gray-200 text-sm">{msg.message}</p>
+            <p className="text-mafia-cream text-sm">{msg.message}</p>
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
       {isNightPhase ? (
-        <div className="text-gray-400 text-sm text-center py-2">
+        <div className="text-mafia-muted text-sm text-center py-2">
           Chat is disabled during night phase
         </div>
       ) : (
@@ -95,7 +95,7 @@ const Chat = ({ onClose, compact = false }) => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
+            className="mafia-input flex-1"
             placeholder="Type a message..."
             maxLength={500}
           />

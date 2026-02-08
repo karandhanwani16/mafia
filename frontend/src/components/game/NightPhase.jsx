@@ -65,9 +65,9 @@ const NightPhase = () => {
 
   if (!currentPlayer.role || currentPlayer.role === ROLES.CIVILIAN) {
     return (
-      <div className="bg-gray-800 rounded-lg p-6 animate-fade-in-up">
-        <h3 className="text-xl font-bold text-white mb-4">🌙 Night Phase</h3>
-        <p className="text-gray-300">
+      <div className="mafia-card p-6 animate-fade-in-up">
+        <h3 className="font-display text-xl font-bold text-mafia-gold mb-4 tracking-wide">🌙 Night Phase</h3>
+        <p className="text-mafia-cream">
           As a Civilian, you have no night action. Rest and wait for the day phase.
         </p>
       </div>
@@ -75,13 +75,13 @@ const NightPhase = () => {
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6 animate-fade-in-up">
-      <h3 className="text-xl font-bold text-white mb-4">🌙 Night Phase - Round {round}</h3>
+    <div className="mafia-card p-6 animate-fade-in-up">
+      <h3 className="font-display text-xl font-bold text-mafia-gold mb-4 tracking-wide">🌙 Night Phase — Round {round}</h3>
       
       {actionSubmitted ? (
         <div className="text-center py-8 animate-success-pop">
           <p className="text-green-400 text-lg mb-2">✓ Action Submitted</p>
-          <p className="text-gray-400 animate-pulse-slow">Waiting for other players...</p>
+          <p className="text-mafia-muted animate-pulse-slow">Waiting for other players...</p>
         </div>
       ) : (
         <>
