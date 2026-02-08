@@ -1,6 +1,7 @@
 import AdminUser from '../models/AdminUser.js';
 import bcrypt from 'bcrypt';
 import { getSettings, updateSettings } from '../services/settingsService.js';
+import { createAdminToken } from '../utils/adminToken.js';
 
 const SALT_ROUNDS = 10;
 
@@ -18,9 +19,12 @@ export async function login(req, res) {
     if (!match) {
       return res.status(401).json({ error: 'Invalid username or password' });
     }
-    req.session.adminId = admin._id.toString();
+    const adminId = admin._id.toString();
+    req.session.adminId = adminId;
     req.session.adminUsername = admin.username;
-    return res.json({ ok: true, username: admin.username });
+    const secret = process.env.SESSION_SECRET || 'change-me-in-production-admin';
+    const token = createAdminToken({ adminId, username: admin.username }, secret);
+    return res.json({ ok: true, username: admin.username, token });
   } catch (err) {
     console.error('[admin login]', err?.message);
     res.status(500).json({ error: 'Login failed' });
@@ -36,10 +40,11 @@ export function logout(req, res) {
 }
 
 export function me(req, res) {
-  if (!req.session?.adminId) {
+  const username = req.session?.adminUsername ?? req.adminUsername;
+  if (!req.session?.adminId && !req.adminId) {
     return res.status(401).json({ error: 'Not logged in' });
   }
-  res.json({ username: req.session.adminUsername });
+  res.json({ username });
 }
 
 export async function getSettingsHandler(req, res) {

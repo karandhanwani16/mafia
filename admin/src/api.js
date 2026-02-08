@@ -1,10 +1,34 @@
 const base = import.meta.env.VITE_API_URL || '';
 
+const ADMIN_TOKEN_KEY = 'admin_token';
+
+export function getStoredToken() {
+  try {
+    return sessionStorage.getItem(ADMIN_TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredToken(token) {
+  try {
+    if (token) sessionStorage.setItem(ADMIN_TOKEN_KEY, token);
+    else sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+  } catch {}
+}
+
 async function request(path, options = {}) {
+  const token = getStoredToken();
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers
+  };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const res = await fetch(`${base}${path}`, {
     ...options,
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...options.headers }
+    headers
   });
   const data = res.ok ? await res.json().catch(() => ({})) : null;
   if (!res.ok) {
@@ -25,14 +49,20 @@ export async function getNeedsSetup() {
 }
 
 export async function login(username, password) {
-  return request('/api/admin/login', {
+  const data = await request('/api/admin/login', {
     method: 'POST',
     body: JSON.stringify({ username, password })
   });
+  if (data?.token) setStoredToken(data.token);
+  return data;
 }
 
 export async function logout() {
-  return request('/api/admin/logout', { method: 'POST' });
+  try {
+    return await request('/api/admin/logout', { method: 'POST' });
+  } finally {
+    setStoredToken(null);
+  }
 }
 
 export async function setup(username, password) {
