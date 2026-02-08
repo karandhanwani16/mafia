@@ -1,26 +1,38 @@
 import rateLimit from 'express-rate-limit';
+import { getSettings } from '../services/settingsService.js';
+import { checkAndIncrement } from './rateLimitStore.js';
 
-// Set API_LIMITER_ENABLED=false in .env to disable rate limiting (e.g. for local dev)
-const API_LIMITER_ENABLED = process.env.API_LIMITER_ENABLED !== 'false';
+const API_LIMITER_ENABLED_ENV = process.env.API_LIMITER_ENABLED !== 'false';
 
-const apiLimiterImpl = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
-});
-
-// Apply rate limit when enabled; no-op when disabled
-export const apiLimiter = API_LIMITER_ENABLED ? apiLimiterImpl : (req, res, next) => next();
+export function apiLimiter(req, res, next) {
+  getSettings()
+    .then((s) => {
+      const enabled = s?.apiLimiterEnabled ?? API_LIMITER_ENABLED_ENV;
+      if (!enabled) return next();
+      const windowMs = s?.apiLimiterWindowMs ?? 15 * 60 * 1000;
+      const max = s?.apiLimiterMax ?? 100;
+      const ip = req.ip || req.socket?.remoteAddress || 'unknown';
+      const { allowed, remaining } = checkAndIncrement(ip, windowMs, max);
+      res.setHeader('X-RateLimit-Remaining', String(remaining));
+      if (!allowed) {
+        return res.status(429).json({
+          error: 'Too many requests from this IP, please try again later.'
+        });
+      }
+      next();
+    })
+    .catch((err) => {
+      console.error('[apiLimiter] getSettings failed', err?.message);
+      next();
+    });
+}
 
 export const socketLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 30, // limit each IP to 30 socket events per minute
+  windowMs: 1 * 60 * 1000,
+  max: 30,
   message: 'Too many socket events, please slow down.'
 });
 
-// Simple authentication middleware (can be enhanced with JWT)
 export const authenticateSocket = (socket, next) => {
-  // For now, just allow connection
-  // Can add token verification here
   next();
 };

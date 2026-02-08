@@ -1,24 +1,45 @@
 import express from 'express';
 import cors from 'cors';
+import session from 'express-session';
 import dotenv from 'dotenv';
 import connectDatabase from './config/database.js';
+import { ensureDefaults } from './services/settingsService.js';
 import roomRoutes from './routes/rooms.js';
 import gameRoutes from './routes/game.js';
+import adminRoutes from './routes/admin.js';
+import { maintenanceMiddleware } from './middleware/maintenance.js';
 
 dotenv.config();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api/rooms', roomRoutes);
-app.use('/api/game', gameRoutes);
+const sessionSecret = process.env.SESSION_SECRET || 'change-me-in-production-admin';
+app.use(session({
+  name: 'admin.sid',
+  secret: sessionSecret,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000,
+    sameSite: 'lax'
+  }
+}));
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'api', timestamp: new Date().toISOString() });
 });
+
+app.use(maintenanceMiddleware);
+
+app.use('/api/rooms', roomRoutes);
+app.use('/api/game', gameRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500).json({
@@ -31,6 +52,7 @@ const PORT = process.env.PORT || 3001;
 const startServer = async () => {
   try {
     await connectDatabase();
+    await ensureDefaults();
     const host = process.env.HOST || '0.0.0.0';
     app.listen(PORT, host, () => {
       console.log(`Server is running on http://${host}:${PORT}`);

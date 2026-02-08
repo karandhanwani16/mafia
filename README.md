@@ -44,6 +44,7 @@ mafia/
 ├── backend/                # REST API (rooms, game state, start game)
 ├── socket-server/          # Socket.IO server (real-time events)
 ├── frontend/               # React frontend application
+├── admin/                  # Admin panel (settings, auth in DB)
 ├── shared/                 # Shared constants (mafia-shared package)
 ├── docker-compose.yml
 ├── backend/Dockerfile
@@ -115,6 +116,20 @@ npm run dev:frontend
 
 The frontend will run on `http://localhost:5173`.
 
+### Admin panel (optional)
+
+The admin panel lets authorized users manage app settings (testing mode, API rate limits, min/max players, maintenance mode) stored in the database.
+
+1. Start the backend (and MongoDB) so the admin app can call the API.
+2. From repo root, start the admin frontend:
+```bash
+npm run dev:admin
+```
+3. Open `http://localhost:5174`. If no admin user exists yet, you will be prompted to create one (first-time setup). Then sign in and use the dashboard to change settings.
+4. Set `SESSION_SECRET` in backend `.env` (or in Docker) for production so admin sessions are secure.
+
+With Docker Compose, the admin app is served on port **8081** by default. Configure your reverse proxy (e.g. `admin.mafia.example.com`) to proxy to that port, or set `ADMIN_PORT` in the root `.env`.
+
 ## Game Rules
 
 ### Roles
@@ -177,6 +192,7 @@ From repo root you can use:
 - `npm run dev:backend` – API (or `cd backend && npm run dev`)
 - `npm run dev:socket` – Socket server (or `cd socket-server && npm run dev`)
 - `npm run dev:frontend` – Frontend (or `cd frontend && npm run dev`)
+- `npm run dev:admin` – Admin panel (or `cd admin && npm run dev`)
 
 Or run all workspaces that have a `dev` script at once (three terminals recommended for logs):
 
@@ -231,9 +247,15 @@ INTERNAL_API_KEY=dev-internal-key
 
 # Port for the frontend (nginx)
 PORT=80
+
+# Port for the admin panel (default 8081)
+ADMIN_PORT=8081
+
+# Admin session secret (set a strong value in production)
+SESSION_SECRET=change-me-in-production-admin
 ```
 
-For production, set `FRONTEND_URL` to your real URL (e.g. `https://mafia.example.com`) and a strong `INTERNAL_API_KEY`.
+For production, set `FRONTEND_URL` to your real URL (e.g. `https://mafia.example.com`), a strong `INTERNAL_API_KEY`, and a strong `SESSION_SECRET`.
 
 ### Build images only
 

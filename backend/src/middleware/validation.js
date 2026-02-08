@@ -21,8 +21,8 @@ export const roomValidation = {
       .withMessage('Host name must be between 1 and 20 characters'),
     body('maxPlayers')
       .optional()
-      .isInt({ min: 5, max: 12 })
-      .withMessage('Max players must be between 5 and 12')
+      .isInt({ min: 3, max: 20 })
+      .withMessage('Max players must be between 3 and 20 (actual limits set in admin)')
   ],
   join: [
     param('roomId').notEmpty().withMessage('Room ID is required'),

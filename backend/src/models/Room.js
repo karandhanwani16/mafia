@@ -25,8 +25,8 @@ const roomSchema = new mongoose.Schema({
   maxPlayers: {
     type: Number,
     required: true,
-    min: 5,
-    max: 12
+    min: 3,
+    max: 20
   },
   currentPlayers: [{
     type: String // player IDs

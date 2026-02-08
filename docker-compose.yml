@@ -26,6 +26,7 @@ services:
       SOCKET_SERVER_URL: http://socket-server:3002
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-dev-internal-key}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+      SESSION_SECRET: ${SESSION_SECRET:-change-me-in-production-admin}
     depends_on:
       mongo:
         condition: service_healthy
@@ -56,6 +57,17 @@ services:
     depends_on:
       - backend
       - socket-server
+
+  admin:
+    build:
+      context: .
+      dockerfile: admin/Dockerfile
+    container_name: mafia-admin
+    restart: unless-stopped
+    ports:
+      - "${ADMIN_PORT:-8081}:80"
+    depends_on:
+      - backend
 
 volumes:
   mafia-mongo-data:

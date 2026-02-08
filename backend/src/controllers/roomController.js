@@ -3,6 +3,7 @@ import Room from '../models/Room.js';
 import Player from '../models/Player.js';
 import Game from '../models/Game.js';
 import { generateRoomCode } from '../utils/helpers.js';
+import { getSettings } from '../services/settingsService.js';
 
 export const createRoom = async (req, res) => {
   try {
@@ -12,12 +13,16 @@ export const createRoom = async (req, res) => {
       return res.status(400).json({ error: 'Host name is required' });
     }
 
-    if (maxPlayers < 5 || maxPlayers > 12) {
-      return res.status(400).json({ error: 'Max players must be between 5 and 12' });
+    const appSettings = await getSettings();
+    const minP = appSettings?.maxPlayersMin ?? 5;
+    const maxP = appSettings?.maxPlayersMax ?? 12;
+
+    if (maxPlayers < minP || maxPlayers > maxP) {
+      return res.status(400).json({ error: `Max players must be between ${minP} and ${maxP}` });
     }
 
     const roomId = uuidv4();
-    const isTestingMode = ['true', '1'].includes(String(process.env.TESTING_MODE || '').toLowerCase());
+    const isTestingMode = appSettings?.testingMode ?? ['true', '1'].includes(String(process.env.TESTING_MODE || '').toLowerCase());
 
     // In testing mode, delete any existing room with code 000000 so the new game gets that code
     if (isTestingMode) {
