@@ -1,6 +1,6 @@
 # Build from repo root: docker build -f frontend/Dockerfile .
 # Stage 1: build
-FROM node:20-alpine AS builder
+FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -23,6 +23,10 @@ WORKDIR /app/frontend
 # Build with relative API/Socket URLs so nginx can proxy /api and /socket.io
 ENV VITE_API_URL=
 ENV VITE_SOCKET_URL=
+
+# Work around npm optional deps bug: ensure Rollup's Linux binary is present for Docker build
+RUN npm install @rollup/rollup-linux-x64-gnu --no-save
+
 
 RUN npm run build
 
