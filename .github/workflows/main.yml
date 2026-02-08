@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Rollup Linux binary (workaround for npm optional deps)
+        run: npm install @rollup/rollup-linux-x64-gnu --no-save -w mafia-frontend
+
       - name: Run tests
         run: npm run test
         continue-on-error: true   # remove when you have real tests
