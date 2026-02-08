@@ -1,0 +1,177 @@
+Sure — I’ve reviewed general Mafia game rules and mechanics from reliable sources and used that to craft a detailed Product Requirements Document (PRD) for a React frontend + Node.js backend implementation of the game described in the Mafia: The Game link you shared (gameplay based on the classic Mafia party game / social deduction game). ￼
+
+⸻
+
+📌 Mafia Game Web App — Product Requirements Document (PRD)
+
+🧠 Product Goals
+
+Build a web-based multiplayer Mafia game with the following key capabilities:
+	1.	Create or Join Game Rooms — Users can create or join unique game rooms.
+	2.	Role Assignment & Gameplay — System assigns roles (Mafia, Town/Civilians, Special roles, etc.) and controls game phases (Night/Day).
+	3.	Real-time Interaction — All players see live game updates, discussion, voting, elimination, and results.
+	4.	Voice / Text Chat During Game — Enable players to discuss during the Day phase.
+	5.	Secure & Fair Play — Hidden roles/data should only be visible to relevant players at relevant times.
+
+⸻
+
+👤 Target Users
+	•	Social gamers (friends, parties).
+	•	Casual online players.
+	•	People familiar with classic “Mafia/Werewolf” rules. ￼
+
+⸻
+
+🧩 Feature Breakdown
+
+⸻
+
+1. Game Flow & Rules
+
+🗓 Phases
+
+🔹 Night Phase
+	•	System hides identities from all players.
+	•	Mafia members silently choose a target.
+	•	Special roles get actions:
+	•	Doctor (can save).
+	•	Detective/Cop (can investigate a player).
+(Based on typical game rules) ￼
+
+🔹 Day Phase
+	•	Reveal who was eliminated during night (except saved).
+	•	Players discuss and vote to lynch suspected mafia.
+	•	Vote results determine who gets eliminated.
+	•	Repeat Night/Day cycles until win condition met.
+
+🏆 Win Conditions
+	•	Mafia wins if mafia count ≥ non-mafia count.
+	•	Villagers win when all mafia eliminated. ￼
+
+⸻
+
+2. Roles
+
+Minimum roles include:
+
+Role	Description
+Mafia	Secretly plans kills at Night.
+Civilians / Town	No special ability; majority group.
+Doctor	Can save a player at Night.
+Detective / Cop	Investigates a player’s alignment.
+Moderator / Host	Backend logic controlling game state.
+
+Extendable to future roles (e.g., Serial Killer, Spy, Bodyguard). ￼
+
+⸻
+
+3. User Stories
+
+⸻
+
+🎮 Gameplay
+	•	As a Player, I want to join a lobby with other players.
+	•	As a Player, I want to be assigned a random role.
+	•	As a Player, I want to see the game state update in real-time.
+	•	As a Player, I want to talk (chat/voice) with others during Day phase.
+
+⸻
+
+🛠 Admin / Host
+	•	As a Host, I want to start a game when enough players are ready.
+	•	As a Host, I want to configure optional roles.
+	•	As a Host, I want to end or reset the game.
+
+⸻
+
+4. Front-End (React)
+
+🏗 Architecture
+	•	React (with Redux or Context for game state)
+	•	React Router — Room & lobby navigation
+	•	WebSockets (Socket.IO) — Real-time updates
+	•	UI/UX Screens
+	•	Landing / Home
+	•	Game Lobby
+	•	In-Game View (Role display, chat, timer)
+	•	Game Results
+
+🗂 UI Components
+	•	Game Room list
+	•	Player list + statuses
+	•	Voting UI
+	•	Chat component
+	•	Action buttons for Night actions
+
+⸻
+
+5. Back-End (Node.js)
+
+🔌 API Design
+
+Endpoint	Purpose
+POST /rooms	Create new game room
+POST /rooms/:id/join	Join existing room
+GET /rooms/:id	Get room status
+POST /rooms/:id/start	Start game
+POST /rooms/:id/action	Submit role actions (kill, save, investigate)
+
+WebSocket events for:
+	•	userJoined
+	•	gameUpdate
+	•	nightActions
+	•	voteResults
+	•	gameEnd
+
+⸻
+
+6. Real-Time Data (WebSockets)
+
+Use Socket.IO or WebRTC + Signaling to:
+	•	Broadcast Room updates
+	•	Sync Phase changes
+	•	Send Night/Day actions
+	•	Deliver Voting results live
+
+⸻
+
+7. Security & Fair Play
+	•	Server determines roles & Night/Day transitions.
+	•	Clients only receive limited data (privacy of roles).
+	•	Elimination notifications controlled by server logic.
+
+⸻
+
+8. Tech Stack Suggestion
+
+Component	Technology
+Frontend	React, Redux
+Backend	Node.js, Express
+Real Time	Socket.IO
+Database	MongoDB / Redis (for game state)
+Hosting	Vercel / Heroku / AWS
+Media Chat (optional)	WebRTC
+
+
+⸻
+
+9. Success Metrics
+
+Metric	Success Indicator
+User Engagement	Avg session length > 10 mins
+Game Completion	Avg games reaching win condition
+Low Cheat Rate	No abnormal votes/actions
+Smooth Sync	Minimal lag between players
+
+
+⸻
+
+10. Future Enhancements
+	•	Voice Chat
+	•	Rankings & History
+	•	AI Bots
+	•	Mobile App support
+
+⸻
+
+If you want, I can also generate UML diagrams, database models, API specs, React component breakdowns, or even starter code templates for this project — just ask! 😊

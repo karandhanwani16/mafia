@@ -1,0 +1,11 @@
+{
+  "name": "mafia-shared",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared constants and utilities for Mafia game",
+  "type": "module",
+  "main": "constants.js",
+  "exports": {
+    ".": "./constants.js"
+  }
+}

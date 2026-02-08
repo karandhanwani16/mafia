@@ -1,0 +1,61 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: mafia-mongo
+    restart: unless-stopped
+    volumes:
+      - mafia-mongo-data:/data/db
+    ports:
+      - "27017:27017"   # optional: expose for local tools
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: mafia-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      MONGODB_URI: mongodb://mongo:27017/mafia
+      SOCKET_SERVER_URL: http://socket-server:3002
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-dev-internal-key}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  socket-server:
+    build:
+      context: .
+      dockerfile: socket-server/Dockerfile
+    container_name: mafia-socket-server
+    restart: unless-stopped
+    environment:
+      PORT: 3002
+      MONGODB_URI: mongodb://mongo:27017/mafia
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-dev-internal-key}
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: mafia-frontend
+    restart: unless-stopped
+    ports:
+      - "${PORT:-80}:80"
+    depends_on:
+      - backend
+      - socket-server
+
+volumes:
+  mafia-mongo-data:
