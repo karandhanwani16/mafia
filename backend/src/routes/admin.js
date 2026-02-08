@@ -9,7 +9,9 @@ import {
   createFirstAdmin,
   listAdmins,
   createAdmin,
-  getStats
+  getStats,
+  resetAdminPassword,
+  deleteAdmin
 } from '../controllers/adminController.js';
 import { requireAdmin } from '../middleware/requireAdmin.js';
 
@@ -26,5 +28,7 @@ router.patch('/settings', requireAdmin, patchSettingsHandler);
 router.get('/stats', requireAdmin, getStats);
 router.get('/admins', requireAdmin, listAdmins);
 router.post('/admins', requireAdmin, createAdmin);
+router.post('/admins/:username/reset-password', requireAdmin, resetAdminPassword);
+router.delete('/admins/:username', requireAdmin, deleteAdmin);
 
 export default router;

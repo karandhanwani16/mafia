@@ -129,6 +129,56 @@ export async function createAdmin(req, res) {
   }
 }
 
+function currentUsername(req) {
+  return (req.session?.adminUsername ?? req.adminUsername ?? '').toLowerCase();
+}
+
+export async function resetAdminPassword(req, res) {
+  try {
+    const targetUsername = (req.params.username || '').toLowerCase();
+    const current = currentUsername(req);
+    if (targetUsername === current) {
+      return res.status(400).json({ error: 'Use your profile or login to change your own password' });
+    }
+    const { newPassword } = req.body;
+    if (!newPassword || newPassword.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters' });
+    }
+    const admin = await AdminUser.findOne({ username: targetUsername });
+    if (!admin) {
+      return res.status(404).json({ error: 'Admin not found' });
+    }
+    const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    await AdminUser.updateOne({ username: targetUsername }, { $set: { passwordHash } });
+    res.json({ message: 'Password reset successfully.' });
+  } catch (err) {
+    console.error('[admin resetAdminPassword]', err?.message);
+    res.status(500).json({ error: 'Failed to reset password' });
+  }
+}
+
+export async function deleteAdmin(req, res) {
+  try {
+    const targetUsername = (req.params.username || '').toLowerCase();
+    const current = currentUsername(req);
+    if (targetUsername === current) {
+      return res.status(400).json({ error: 'You cannot delete your own account' });
+    }
+    const count = await AdminUser.countDocuments();
+    if (count <= 1) {
+      return res.status(400).json({ error: 'Cannot delete the last admin' });
+    }
+    const result = await AdminUser.deleteOne({ username: targetUsername });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Admin not found' });
+    }
+    res.json({ message: 'Admin removed successfully.' });
+  } catch (err) {
+    console.error('[admin deleteAdmin]', err?.message);
+    res.status(500).json({ error: 'Failed to delete admin' });
+  }
+}
+
 export async function getStats(req, res) {
   try {
     const Room = (await import('../models/Room.js')).default;

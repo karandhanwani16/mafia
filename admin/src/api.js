@@ -97,3 +97,16 @@ export async function createAdmin(username, password) {
     body: JSON.stringify({ username, password })
   });
 }
+
+export async function resetAdminPassword(username, newPassword) {
+  return request(`/api/admin/admins/${encodeURIComponent(username)}/reset-password`, {
+    method: 'POST',
+    body: JSON.stringify({ newPassword })
+  });
+}
+
+export async function deleteAdmin(username) {
+  return request(`/api/admin/admins/${encodeURIComponent(username)}`, {
+    method: 'DELETE'
+  });
+}

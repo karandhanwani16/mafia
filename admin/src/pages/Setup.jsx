@@ -32,50 +32,53 @@ export default function Setup({ onDone }) {
   }
 
   return (
-    <div style={{ maxWidth: 360, margin: '4rem auto', padding: 24 }}>
-      <h1 style={{ marginBottom: 8 }}>Create first admin</h1>
-      <p style={{ color: '#94a3b8', marginBottom: 24 }}>No admin user exists yet. Create one to access the panel.</p>
-      <form onSubmit={handleSubmit}>
-        {error && <p style={{ color: '#f87171', marginBottom: 12 }}>{error}</p>}
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 6 }}>Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #334155', background: '#1e293b', color: '#e2e8f0' }}
-          />
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 6 }}>Password (min 8 characters)</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={8}
-            style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #334155', background: '#1e293b', color: '#e2e8f0' }}
-          />
-        </div>
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ display: 'block', marginBottom: 6 }}>Confirm password</label>
-          <input
-            type="password"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            required
-            style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #334155', background: '#1e293b', color: '#e2e8f0' }}
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          style={{ width: '100%', padding: 12, borderRadius: 8, border: 0, background: '#22c55e', color: '#fff', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer' }}
-        >
-          {loading ? 'Creating…' : 'Create admin'}
-        </button>
-      </form>
+    <div className="admin-auth-page">
+      <div className="admin-auth-card">
+        <h1>🎭 Create first admin</h1>
+        <p className="admin-auth-subtitle">No admin exists yet. Create an account to access the panel.</p>
+        <form onSubmit={handleSubmit}>
+          {error && (
+            <div className="admin-alert admin-alert-error">{error}</div>
+          )}
+          <div className="admin-input-wrap">
+            <label htmlFor="setup-username">Username</label>
+            <input
+              id="setup-username"
+              type="text"
+              className="admin-input"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+          <div className="admin-input-wrap">
+            <label htmlFor="setup-password">Password (min 8 characters)</label>
+            <input
+              id="setup-password"
+              type="password"
+              className="admin-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+            />
+          </div>
+          <div className="admin-input-wrap">
+            <label htmlFor="setup-confirm">Confirm password</label>
+            <input
+              id="setup-confirm"
+              type="password"
+              className="admin-input"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit" className="admin-btn admin-btn-success" disabled={loading}>
+            {loading ? 'Creating…' : 'Create admin'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
