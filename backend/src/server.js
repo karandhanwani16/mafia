@@ -38,13 +38,17 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'api', timestamp: new Date().toISOString() });
 });
 
-// Public app config for frontend (e.g. testing mode from DB)
+// Public app config for frontend (e.g. testing mode, min/max players from DB)
 app.get('/api/app-config', async (req, res) => {
   try {
     const settings = await getSettings();
-    res.json({ testingMode: !!settings?.testingMode });
+    res.json({
+      testingMode: !!settings?.testingMode,
+      maxPlayersMin: settings?.maxPlayersMin ?? 5,
+      maxPlayersMax: settings?.maxPlayersMax ?? 12
+    });
   } catch (err) {
-    res.json({ testingMode: false });
+    res.json({ testingMode: false, maxPlayersMin: 5, maxPlayersMax: 12 });
   }
 });
 

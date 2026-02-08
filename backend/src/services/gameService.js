@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Room from '../models/Room.js';
 import Player from '../models/Player.js';
 import Game from '../models/Game.js';
+import { getSettings } from '../services/settingsService.js';
 import { ROLE_DISTRIBUTION, ROLES, WINNERS, GAME_PHASES } from 'mafia-shared';
 
 export const assignRoles = (players, settings) => {
@@ -54,14 +55,17 @@ export const startGame = async (roomId) => {
       throw new Error('Game already started or finished');
     }
 
-    if (room.currentPlayers.length < 5) {
-      throw new Error('Need at least 5 players to start');
+    const appSettings = await getSettings();
+    const minPlayers = appSettings?.maxPlayersMin ?? 5;
+
+    if (room.currentPlayers.length < minPlayers) {
+      throw new Error(`Need at least ${minPlayers} players to start`);
     }
 
     // Get all players
     const players = await Player.find({ roomId });
-    if (players.length < 5) {
-      throw new Error('Need at least 5 players to start');
+    if (players.length < minPlayers) {
+      throw new Error(`Need at least ${minPlayers} players to start`);
     }
 
     // Assign roles

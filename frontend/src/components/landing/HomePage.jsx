@@ -9,12 +9,17 @@ import Button from '../common/Button';
 import Loading from '../common/Loading';
 
 const HomePage = () => {
+  const [appConfig, setAppConfig] = useState({ maxPlayersMin: 5, maxPlayersMax: 12 });
   const [createForm, setCreateForm] = useState({ hostName: '', maxPlayers: 12 });
   const [joinForm, setJoinForm] = useState({ roomCode: '', playerName: '' });
   const [activeTab, setActiveTab] = useState('create');
 
   useEffect(() => {
     appConfigAPI.getAppConfig().then((config) => {
+      const min = config?.maxPlayersMin ?? 5;
+      const max = config?.maxPlayersMax ?? 12;
+      setAppConfig({ maxPlayersMin: min, maxPlayersMax: max });
+      setCreateForm((f) => ({ ...f, maxPlayers: Math.min(Math.max(f.maxPlayers, min), max) }));
       if (config?.testingMode) {
         setJoinForm({
           roomCode: '000000',
@@ -118,14 +123,14 @@ const HomePage = () => {
               />
             </div>
             <div>
-              <label className="block text-gray-300 mb-2">Max Players (5-12)</label>
+              <label className="block text-gray-300 mb-2">Max Players ({appConfig.maxPlayersMin}-{appConfig.maxPlayersMax})</label>
               <input
                 type="number"
                 value={createForm.maxPlayers}
                 onChange={(e) => setCreateForm({ ...createForm, maxPlayers: parseInt(e.target.value) })}
                 className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
-                min="5"
-                max="12"
+                min={appConfig.maxPlayersMin}
+                max={appConfig.maxPlayersMax}
                 required
               />
             </div>

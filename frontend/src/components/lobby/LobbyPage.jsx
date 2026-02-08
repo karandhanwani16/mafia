@@ -5,7 +5,7 @@ import { getSocket } from '../../services/socket';
 import { startGame, setRoom, updatePlayers, resetRoom } from '../../store/slices/roomSlice';
 import { setGameState } from '../../store/slices/gameSlice';
 import { setRole } from '../../store/slices/playerSlice';
-import { roomAPI, gameAPI } from '../../services/api';
+import { roomAPI, gameAPI, appConfigAPI } from '../../services/api';
 import { log } from '../../utils/debug';
 import Button from '../common/Button';
 import Loading from '../common/Loading';
@@ -19,8 +19,15 @@ const LobbyPage = () => {
   const { currentPlayer } = useSelector((state) => state.player);
   const gameIdFromState = useSelector((state) => state.game.gameId);
   const [socket, setSocket] = useState(null);
+  const [minPlayers, setMinPlayers] = useState(5);
   // If we already have this room (e.g. just created it), don't show loading
   const [loading, setLoading] = useState(() => !(currentRoom?.roomId === roomId));
+
+  useEffect(() => {
+    appConfigAPI.getAppConfig().then((config) => {
+      setMinPlayers(config?.maxPlayersMin ?? 5);
+    }).catch(() => {});
+  }, []);
 
   // Fetch room data on mount (or when roomId changes)
   useEffect(() => {
@@ -168,7 +175,7 @@ const LobbyPage = () => {
   };
 
   const isHost = currentPlayer.playerId === hostId;
-  const canStart = isHost && players.length >= 5 && status === 'waiting';
+  const canStart = isHost && players.length >= minPlayers && status === 'waiting';
 
   if (loading || !currentRoom) {
     return <Loading message="Loading room..." />;
@@ -193,9 +200,9 @@ const LobbyPage = () => {
           </div>
         </div>
 
-        {players.length < 5 && (
+        {players.length < minPlayers && (
           <div className="bg-yellow-900 bg-opacity-50 border border-yellow-700 text-yellow-200 px-4 py-3 rounded mb-4">
-            Need at least 5 players to start (currently {players.length})
+            Need at least {minPlayers} players to start (currently {players.length})
           </div>
         )}
 
