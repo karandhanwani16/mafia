@@ -30,7 +30,7 @@ export async function login(req, res) {
 export function logout(req, res) {
   req.session.destroy((err) => {
     if (err) return res.status(500).json({ error: 'Logout failed' });
-    res.clearCookie('connect.sid');
+    res.clearCookie('admin.sid');
     res.json({ ok: true });
   });
 }

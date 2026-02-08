@@ -13,6 +13,9 @@ dotenv.config();
 
 const app = express();
 
+// Required when behind a reverse proxy (e.g. nginx) so session cookies and req.secure work correctly
+app.set('trust proxy', 1);
+
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
