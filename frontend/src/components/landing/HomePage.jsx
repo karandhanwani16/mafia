@@ -1,22 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { createRoom, joinRoomByCode } from '../../store/slices/roomSlice';
 import { setPlayer } from '../../store/slices/playerSlice';
 import { playSound } from '../../config/sounds';
+import { appConfigAPI } from '../../services/api';
 import Button from '../common/Button';
 import Loading from '../common/Loading';
 
-const TESTING_MODE = import.meta.env.VITE_TESTING_MODE === 'true';
-const defaultJoinForm = () => ({
-  roomCode: TESTING_MODE ? '000000' : '',
-  playerName: TESTING_MODE ? `Player${Math.floor(1000 + Math.random() * 9000)}` : ''
-});
-
 const HomePage = () => {
   const [createForm, setCreateForm] = useState({ hostName: '', maxPlayers: 12 });
-  const [joinForm, setJoinForm] = useState(() => defaultJoinForm());
+  const [joinForm, setJoinForm] = useState({ roomCode: '', playerName: '' });
   const [activeTab, setActiveTab] = useState('create');
+
+  useEffect(() => {
+    appConfigAPI.getAppConfig().then((config) => {
+      if (config?.testingMode) {
+        setJoinForm({
+          roomCode: '000000',
+          playerName: `Player${Math.floor(1000 + Math.random() * 9000)}`
+        });
+      }
+    }).catch(() => {});
+  }, []);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.room);

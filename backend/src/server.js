@@ -3,7 +3,7 @@ import cors from 'cors';
 import session from 'express-session';
 import dotenv from 'dotenv';
 import connectDatabase from './config/database.js';
-import { ensureDefaults } from './services/settingsService.js';
+import { ensureDefaults, getSettings } from './services/settingsService.js';
 import roomRoutes from './routes/rooms.js';
 import gameRoutes from './routes/game.js';
 import adminRoutes from './routes/admin.js';
@@ -36,6 +36,16 @@ app.use(session({
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'api', timestamp: new Date().toISOString() });
+});
+
+// Public app config for frontend (e.g. testing mode from DB)
+app.get('/api/app-config', async (req, res) => {
+  try {
+    const settings = await getSettings();
+    res.json({ testingMode: !!settings?.testingMode });
+  } catch (err) {
+    res.json({ testingMode: false });
+  }
 });
 
 app.use(maintenanceMiddleware);

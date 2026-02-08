@@ -8,6 +8,10 @@ const api = axios.create({
   }
 });
 
+export const appConfigAPI = {
+  getAppConfig: () => api.get('/api/app-config').then((r) => r.data)
+};
+
 export const roomAPI = {
   createRoom: (data) => api.post('/api/rooms', data),
   joinRoom: (roomId, data) => api.post(`/api/rooms/${roomId}/join`, data),
