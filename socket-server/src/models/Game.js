@@ -47,6 +47,7 @@ const gameSchema = new mongoose.Schema({
     },
     detective: {
       targetId: String,
+      targetName: String,
       submitted: Boolean,
       result: String
     }

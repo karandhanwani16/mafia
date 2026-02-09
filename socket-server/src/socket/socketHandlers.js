@@ -110,8 +110,16 @@ export const setupSocketHandlers = (io) => {
         if (!validation.valid) { socket.emit('error', { message: validation.error }); return; }
         let updatedGame;
         if (player.role === 'detective') {
-          const targetPlayer = await Player.findOne({ playerId: targetId, roomId }).select('role').lean();
-          updatedGame = processDetectiveAction(gameState, targetId, targetPlayer?.role);
+          const targetIdStr = String(targetId);
+          const targetInGame = (game.players || []).find((p) => String(p.playerId) === targetIdStr);
+          let targetRole = targetInGame?.role;
+          let targetName = targetInGame?.username ?? '';
+          if (targetRole === undefined || targetRole === null) {
+            const targetFromDb = await Player.findOne({ playerId: targetIdStr, roomId }).select('role username').lean();
+            targetRole = targetRole ?? targetFromDb?.role;
+            targetName = targetName || targetFromDb?.username || '';
+          }
+          updatedGame = processDetectiveAction(gameState, targetId, targetRole, targetName);
         } else {
           switch (player.role) {
             case 'mafia': updatedGame = processMafiaAction(gameState, targetId); break;

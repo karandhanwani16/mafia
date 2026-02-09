@@ -45,9 +45,10 @@ export const processDoctorAction = (gameState, targetId) => ({
 /**
  * @param {object} gameState
  * @param {string} targetId
- * @param {string} [targetRole] - If provided, use this as the investigated player's role (e.g. from Player collection). Otherwise use gameState.players.
+ * @param {string} [targetRole] - If provided, use this as the investigated player's role (e.g. from game.players). Otherwise use gameState.players.
+ * @param {string} [targetName] - If provided, store as the investigated player's display name.
  */
-export const processDetectiveAction = (gameState, targetId, targetRole) => {
+export const processDetectiveAction = (gameState, targetId, targetRole, targetName) => {
   const targetIdStr = String(targetId);
   let role = (targetRole && String(targetRole).toLowerCase()) || '';
   if (role === '') {
@@ -55,8 +56,12 @@ export const processDetectiveAction = (gameState, targetId, targetRole) => {
     if (target) role = (target.role && String(target.role).toLowerCase()) || '';
   }
   const result = role === 'mafia' ? 'mafia' : 'civilian';
+  const name = targetName && String(targetName).trim() ? String(targetName).trim() : '';
   return {
     ...gameState,
-    nightActions: { ...gameState.nightActions, detective: { targetId: targetIdStr, submitted: true, result } }
+    nightActions: {
+      ...gameState.nightActions,
+      detective: { targetId: targetIdStr, targetName: name, submitted: true, result }
+    }
   };
 };

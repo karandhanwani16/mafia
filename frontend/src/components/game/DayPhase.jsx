@@ -28,7 +28,8 @@ const DayPhase = () => {
   const alivePlayers = players.filter(p => p.isAlive);
   const deadPlayers = players.filter(p => !p.isAlive);
   const eliminatedPlayer = lastNightEliminated ? players.find(p => p.playerId === lastNightEliminated) : null;
-  const investigatedPlayer = lastDayDetectiveResult?.targetId ? players.find(p => p.playerId === lastDayDetectiveResult.targetId) : null;
+  const investigatedPlayer = lastDayDetectiveResult?.targetId ? players.find(p => String(p.playerId) === String(lastDayDetectiveResult.targetId)) : null;
+  const investigatedName = lastDayDetectiveResult?.targetName || investigatedPlayer?.username || 'That player';
 
   return (
     <div className="mafia-card p-6 animate-fade-in-up relative">
@@ -65,7 +66,7 @@ const DayPhase = () => {
       {currentPlayer.role === ROLES.DETECTIVE && lastDayDetectiveResult && (
         <div className="bg-mafia-gold/20 border-2 border-mafia-gold rounded-lg p-4 mb-4">
           <p className="text-mafia-cream font-medium">
-            Your investigation: <span className="text-mafia-gold font-semibold">{investigatedPlayer?.username || 'That player'}</span>{' '}
+            Your investigation: <span className="text-mafia-gold font-semibold">{investigatedName}</span>{' '}
             {lastDayDetectiveResult.result === 'mafia' ? 'is mafia.' : 'is not mafia.'}
           </p>
         </div>
