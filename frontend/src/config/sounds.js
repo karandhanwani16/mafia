@@ -32,7 +32,7 @@ export const SOUND_PATHS = {
   nightStepDetective: `${SOUND_BASE}/night-step-detective.mp3`, // Detective investigates
 
   // Results / events
-  playerEliminated: `${SOUND_BASE}/player-eliminated.mp3`,
+  playerEliminated: `${SOUND_BASE}/playeer-dead.mp3`,
   gameOverMafia: `${SOUND_BASE}/game-over-mafia.mp3`,
   gameOverVillagers: `${SOUND_BASE}/game-over-villagers.mp3`,
 

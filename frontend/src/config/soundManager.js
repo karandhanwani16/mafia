@@ -111,7 +111,8 @@ export function getSfxMultiplier() {
 }
 
 let audioUnlocked = false;
-const UNLOCK_SOUND = `${SOUND_BASE}/ui-click.mp3`;
+// Minimal silent WAV (no network request) so unlock works even if /sounds/ files fail
+const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 
 /**
  * Call once on first user interaction (click/tap/key) to unlock audio playback.
@@ -120,7 +121,7 @@ const UNLOCK_SOUND = `${SOUND_BASE}/ui-click.mp3`;
 export function unlockAudio() {
   if (audioUnlocked) return;
   try {
-    const audio = new Audio(UNLOCK_SOUND);
+    const audio = new Audio(SILENT_WAV);
     audio.volume = 0;
     audio.play().then(() => {
       audio.pause();

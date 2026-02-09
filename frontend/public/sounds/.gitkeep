@@ -1,1 +1,32 @@
-# Add your sound files here (see frontend/SOUNDS.md for the list and paths).
+# Required sound files for the Mafia game (place .mp3 files here).
+# All paths are relative to this folder; the app loads from /sounds/... at runtime.
+#
+# UI
+ui-click.mp3
+ui-tab.mp3
+#
+# Game flow
+game-start.mp3
+phase-night.mp3
+phase-day.mp3
+role-reveal.mp3
+#
+# Actions
+action-submit.mp3
+vote-submit.mp3
+#
+# Night steps (mafia → doctor → detective)
+night-step-mafia.mp3
+night-step-doctor.mp3
+night-step-detective.mp3
+#
+# Results
+player-eliminated.mp3
+game-over-mafia.mp3
+game-over-villagers.mp3
+#
+# Background & chat
+background-music.mp3
+chat-message.mp3
+#
+# See frontend/SOUNDS.md for details.

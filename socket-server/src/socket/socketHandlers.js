@@ -170,7 +170,10 @@ export const setupSocketHandlers = (io) => {
         const { submitVote: submitVoteService, getVoteCount } = await import('../services/voteService.js');
         const result = submitVoteService(game, playerId, targetId);
         if (!result.success) { socket.emit('error', { message: result.error }); return; }
-        await Game.findOneAndUpdate({ gameId }, result.gameState);
+        await Game.findOneAndUpdate(
+          { gameId },
+          { $set: { votes: result.gameState.votes || [] } }
+        );
         const updatedGame = await Game.findOne({ gameId });
         const voteCount = getVoteCount(updatedGame);
         io.to(roomId).emit('voteUpdate', { votes: updatedGame.votes || [], voteCount });
