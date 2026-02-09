@@ -130,7 +130,11 @@ const GamePage = () => {
   }, [currentRoom?.roomId, currentPlayer?.playerId]);
 
   if (winner) {
-    return <GameResults />;
+    return (
+      <div className="max-w-6xl mx-auto game-day-mode">
+        <GameResults />
+      </div>
+    );
   }
 
   if (!currentPlayer?.playerId) {
@@ -155,10 +159,12 @@ const GamePage = () => {
     );
   }
 
+  const isDayPhase = phase === GAME_PHASES.DAY || phase === GAME_PHASES.VOTING || phase === GAME_PHASES.RESULTS;
+
   return (
     <>
       <RoleReveal isOpen={showRoleReveal} onClose={() => setShowRoleReveal(false)} />
-    <div className="max-w-6xl mx-auto animate-fade-in">
+    <div className={`max-w-6xl mx-auto animate-fade-in transition-colors duration-500 ${isDayPhase ? 'game-day-mode' : ''}`}>
       <div
         className={`mafia-card p-6 mb-4 transition-smooth ${
           phase === GAME_PHASES.NIGHT ? 'animate-glow-night border-mafia-gold/20' : 'animate-glow-day border-mafia-gold/30'

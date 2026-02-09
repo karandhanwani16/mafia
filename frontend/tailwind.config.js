@@ -22,6 +22,14 @@ export default {
           muted: '#a89f94',
           success: '#2d5a2d',
           'success-light': '#3d7a3d',
+          /* Day mode (light) */
+          'day-bg': '#f2ede5',
+          'day-surface': '#e8e2d9',
+          'day-card': '#fffef9',
+          'day-border': '#c4b8a8',
+          'day-text': '#2c2825',
+          'day-muted': '#5c534a',
+          'day-gold': '#8b6919',
         },
       },
       fontFamily: {

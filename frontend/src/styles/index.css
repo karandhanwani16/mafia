@@ -61,3 +61,72 @@ body {
 .mafia-label {
   @apply block text-mafia-muted font-medium mb-1.5 tracking-wide;
 }
+
+/* Day mode: light UI when phase is day / voting / results */
+.game-day-mode {
+  @apply rounded-xl p-4 md:p-6;
+  background: linear-gradient(180deg, #f5f0e8 0%, #ebe6de 100%);
+  color: #2c2825;
+}
+.game-day-mode .mafia-card {
+  background-color: #fffef9 !important;
+  border-color: #c4b8a8 !important;
+  color: #2c2825 !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06) !important;
+}
+.game-day-mode .text-mafia-cream {
+  color: #2c2825 !important;
+}
+.game-day-mode .text-mafia-muted {
+  color: #5c534a !important;
+}
+.game-day-mode .text-mafia-gold {
+  color: #8b6919 !important;
+}
+.game-day-mode .text-mafia-gold-light {
+  color: #a08028 !important;
+}
+.game-day-mode .bg-mafia-surface {
+  background-color: #e8e2d9 !important;
+}
+.game-day-mode .bg-mafia-card {
+  background-color: #fffef9 !important;
+}
+.game-day-mode .border-mafia-border {
+  border-color: #c4b8a8 !important;
+}
+.game-day-mode .bg-mafia-red\/30 {
+  background-color: rgba(139, 46, 46, 0.12) !important;
+}
+.game-day-mode .bg-mafia-gold\/20 {
+  background-color: rgba(201, 162, 39, 0.12) !important;
+}
+.game-day-mode .text-mafia-success-light {
+  color: #2d5a2d !important;
+}
+.game-day-mode .hover\:bg-mafia-surface:hover {
+  background-color: #e8e2d9 !important;
+}
+.game-day-mode .hover\:border-mafia-border:hover {
+  border-color: #c4b8a8 !important;
+}
+.game-day-mode .hover\:text-mafia-gold:hover {
+  color: #8b6919 !important;
+}
+.game-day-mode button.p-1\.5 {
+  color: #5c534a;
+}
+.game-day-mode button.p-1\.5:hover {
+  color: #8b6919;
+  background-color: #e8e2d9;
+  border-color: #c4b8a8;
+}
+.game-day-mode .ring-offset-mafia-bg {
+  --tw-ring-offset-color: #f5f0e8;
+}
+.game-day-mode .hover\:bg-mafia-card:hover {
+  background-color: #fffef9 !important;
+}
+.game-day-mode .hover\:border-mafia-gold:hover {
+  border-color: #8b6919 !important;
+}

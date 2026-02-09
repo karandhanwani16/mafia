@@ -170,35 +170,46 @@ export const setupSocketHandlers = (io) => {
         const { submitVote: submitVoteService, getVoteCount } = await import('../services/voteService.js');
         const result = submitVoteService(game, playerId, targetId);
         if (!result.success) { socket.emit('error', { message: result.error }); return; }
-        await Game.findOneAndUpdate(
-          { gameId },
-          { $set: { votes: result.gameState.votes || [] } }
+        const votesToSet = (result.gameState.votes || []).map((v) => ({
+          voterId: String(v.voterId),
+          targetId: String(v.targetId),
+          timestamp: v.timestamp || new Date()
+        }));
+        const updatedGame = await Game.findOneAndUpdate(
+          { gameId, roomId },
+          { $set: { votes: votesToSet } },
+          { new: true }
         );
-        const updatedGame = await Game.findOne({ gameId });
+        if (!updatedGame) { socket.emit('error', { message: 'Game not found' }); return; }
         const voteCount = getVoteCount(updatedGame);
         io.to(roomId).emit('voteUpdate', { votes: updatedGame.votes || [], voteCount });
-        const alivePlayers = updatedGame.players.filter(p => p.isAlive);
+        const alivePlayers = updatedGame.players.filter((p) => p.isAlive);
         const votes = updatedGame.votes || [];
-        const voters = new Set(votes.map(v => v.voterId));
-        if (voters.size >= alivePlayers.length) {
+        const voters = new Set(votes.map((v) => String(v.voterId)));
+        const allAliveVoted = alivePlayers.length > 0 && voters.size >= alivePlayers.length;
+        if (allAliveVoted) {
           const voteResult = await processVoting(gameId);
           const winCheck = await checkWinConditions(gameId);
           io.to(roomId).emit('voteResults', { eliminated: voteResult.eliminated, tie: voteResult.tie, votes: updatedGame.votes });
           if (voteResult.eliminated) io.to(roomId).emit('playerEliminated', { playerId: voteResult.eliminated });
-          if (winCheck.winner) io.to(roomId).emit('gameEnd', { winner: winCheck.winner, game: winCheck.game });
-          else {
-            const nextGame = await Game.findOne({ gameId });
-            nextGame.phase = 'night';
-            nextGame.nightStep = 'mafia';
-            nextGame.round += 1;
-            nextGame.phaseStartTime = new Date();
-            await nextGame.save();
-            io.to(roomId).emit('phaseChanged', { phase: 'night', round: nextGame.round, nightStep: 'mafia' });
-            io.to(roomId).emit('nightStepChanged', { nightStep: 'mafia' });
-            io.to(roomId).emit('nightActionRequired', { round: nextGame.round });
+          if (winCheck.winner) {
+            io.to(roomId).emit('gameEnd', { winner: winCheck.winner, game: winCheck.game });
+          } else {
+            const nextGame = await Game.findOne({ gameId, roomId });
+            if (nextGame) {
+              nextGame.phase = 'night';
+              nextGame.nightStep = 'mafia';
+              nextGame.round += 1;
+              nextGame.phaseStartTime = new Date();
+              await nextGame.save();
+              io.to(roomId).emit('phaseChanged', { phase: 'night', round: nextGame.round, nightStep: 'mafia' });
+              io.to(roomId).emit('nightStepChanged', { nightStep: 'mafia' });
+              io.to(roomId).emit('nightActionRequired', { round: nextGame.round });
+            }
           }
         }
       } catch (error) {
+        if (process.env.NODE_ENV !== 'production') console.error('[submitVote]', error);
         socket.emit('error', { message: 'Failed to submit vote' });
       }
     });
