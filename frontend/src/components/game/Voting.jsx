@@ -14,8 +14,13 @@ const Voting = () => {
   const [voted, setVoted] = useState(false);
   const socket = getSocket();
 
+  const meInGame = players.find(p => p.playerId === currentPlayer.playerId);
+  const isAlive = meInGame?.isAlive !== false;
   const alivePlayers = players.filter(p => p.isAlive && p.playerId !== currentPlayer.playerId);
   const hasVoted = votes.some(v => v.voterId === currentPlayer.playerId);
+  const aliveCount = players.filter(p => p.isAlive).length;
+  const votedCount = votes.length;
+  const votesRemaining = Math.max(0, aliveCount - votedCount);
 
   const handleVote = () => {
     if (!selectedTarget || hasVoted) return;
@@ -30,11 +35,11 @@ const Voting = () => {
     setVoted(true);
   };
 
-  if (!currentPlayer.isAlive) {
+  if (!isAlive) {
     return (
       <div className="mafia-card p-6 animate-fade-in-up">
         <h3 className="font-display text-xl font-bold text-mafia-gold mb-4 tracking-wide">Voting</h3>
-        <p className="text-mafia-muted">Dead players cannot vote.</p>
+        <p className="text-mafia-muted">You were eliminated. Dead players cannot vote.</p>
       </div>
     );
   }
@@ -46,6 +51,9 @@ const Voting = () => {
       {hasVoted ? (
         <div className="text-center py-4 animate-success-pop">
           <p className="text-mafia-success-light mb-4">✓ Your vote has been submitted</p>
+          <p className="text-mafia-muted text-sm mb-4">
+            {votesRemaining > 0 ? `Waiting for ${votesRemaining} more vote(s) from alive players…` : 'All alive players have voted.'}
+          </p>
           <div className="mt-4">
             <h4 className="font-display text-lg font-semibold text-mafia-cream mb-2">Current Votes</h4>
             <div className="space-y-2">
@@ -67,7 +75,8 @@ const Voting = () => {
         </div>
       ) : (
         <>
-          <p className="text-mafia-cream mb-4">Select a player to vote for elimination:</p>
+          <p className="text-mafia-cream mb-2">Select a player to vote for elimination:</p>
+          <p className="text-mafia-muted text-sm mb-4">{votedCount} of {aliveCount} alive players have voted.</p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
             {alivePlayers.map((player) => (
               <PlayerCard

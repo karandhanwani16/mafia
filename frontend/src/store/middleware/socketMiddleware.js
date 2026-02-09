@@ -18,7 +18,7 @@ import {
   updatePlayers,
   updateStatus
 } from '../slices/roomSlice';
-import { setSocketStatus } from '../slices/playerSlice';
+import { setSocketStatus, setAliveStatus } from '../slices/playerSlice';
 import { addChatMessage, clearChatMessages } from '../slices/chatSlice';
 
 export const socketMiddleware = (store) => {
@@ -66,6 +66,8 @@ export const socketMiddleware = (store) => {
     playSound('phaseDay');
     if (data.eliminated) {
       store.dispatch(eliminatePlayer(data.eliminated));
+      const myId = store.getState().player?.currentPlayer?.playerId;
+      if (myId === data.eliminated) store.dispatch(setAliveStatus(false));
       setTimeout(() => playSound('playerEliminated'), 600);
     }
     if (data.detectiveResult) {
@@ -82,11 +84,15 @@ export const socketMiddleware = (store) => {
   socket.on('voteResults', (data) => {
     if (data.eliminated) {
       store.dispatch(eliminatePlayer(data.eliminated));
+      const myId = store.getState().player?.currentPlayer?.playerId;
+      if (myId === data.eliminated) store.dispatch(setAliveStatus(false));
     }
   });
 
   socket.on('playerEliminated', (data) => {
     store.dispatch(eliminatePlayer(data.playerId));
+    const myId = store.getState().player?.currentPlayer?.playerId;
+    if (myId === data.playerId) store.dispatch(setAliveStatus(false));
   });
 
   socket.on('gameEnd', (data) => {
