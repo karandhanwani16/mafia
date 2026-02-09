@@ -112,13 +112,9 @@ export const setupSocketHandlers = (io) => {
         if (player.role === 'detective') {
           const targetIdStr = String(targetId);
           const targetInGame = (game.players || []).find((p) => String(p.playerId) === targetIdStr);
-          let targetRole = targetInGame?.role;
-          let targetName = targetInGame?.username ?? '';
-          if (targetRole === undefined || targetRole === null) {
-            const targetFromDb = await Player.findOne({ playerId: targetIdStr, roomId }).select('role username').lean();
-            targetRole = targetRole ?? targetFromDb?.role;
-            targetName = targetName || targetFromDb?.username || '';
-          }
+          const targetFromDb = await Player.findOne({ playerId: targetIdStr, roomId }).select('role username').lean();
+          const targetRole = targetInGame?.role ?? targetFromDb?.role;
+          const targetName = targetInGame?.username ?? targetFromDb?.username ?? '';
           updatedGame = processDetectiveAction(gameState, targetId, targetRole, targetName);
         } else {
           switch (player.role) {
@@ -128,7 +124,7 @@ export const setupSocketHandlers = (io) => {
           }
         }
         await Game.findOneAndUpdate(
-          { gameId },
+          { gameId, roomId },
           { $set: { nightActions: updatedGame.nightActions } }
         );
         const currentStep = game.nightStep || 'mafia';
@@ -158,11 +154,19 @@ export const setupSocketHandlers = (io) => {
           const winCheck = await checkWinConditions(gameId);
           setTimeout(() => {
             io.to(roomId).emit('phaseChanged', { phase: 'day', round: dayGame.round, nightResults });
-            io.to(roomId).emit('dayPhaseStarted', {
+            const detectiveResult = nightResults.detectiveResult
+            ? {
+                targetId: nightResults.detectiveResult.targetId,
+                targetName: nightResults.detectiveResult.targetName ?? '',
+                submitted: nightResults.detectiveResult.submitted,
+                result: nightResults.detectiveResult.result
+              }
+            : null;
+          io.to(roomId).emit('dayPhaseStarted', {
               eliminated: nightResults.eliminated,
               saved: nightResults.saved,
               round: dayGame.round,
-              detectiveResult: nightResults.detectiveResult || null
+              detectiveResult
             });
             if (winCheck.winner) io.to(roomId).emit('gameEnd', { winner: winCheck.winner, game: winCheck.game });
           }, STEP_DELAY_MS);

@@ -5,3 +5,5 @@ node_modules/
 dist/
 build/
 notes
+temp_auto_push.bat
+temp_interactive_push.bat
