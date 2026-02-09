@@ -4,11 +4,14 @@ import { log } from '../../utils/debug';
 import {
   setGameState,
   updatePhase,
+  setNightStep,
   eliminatePlayer,
   setVoteCount,
   setVotes,
   setWinner,
-  setDetectiveResult
+  setDetectiveResult,
+  setLastDayDetectiveResult,
+  setLastNightEliminated
 } from '../slices/gameSlice';
 import {
   setRoom,
@@ -52,12 +55,23 @@ export const socketMiddleware = (store) => {
 
   socket.on('phaseChanged', (data) => {
     store.dispatch(updatePhase(data));
+    if (data.phase === 'night') playSound('phaseNight');
+  });
+
+  socket.on('nightStepChanged', (data) => {
+    store.dispatch(setNightStep(data.nightStep));
   });
 
   socket.on('dayPhaseStarted', (data) => {
+    playSound('phaseDay');
     if (data.eliminated) {
       store.dispatch(eliminatePlayer(data.eliminated));
+      setTimeout(() => playSound('playerEliminated'), 600);
     }
+    if (data.detectiveResult) {
+      store.dispatch(setLastDayDetectiveResult(data.detectiveResult));
+    }
+    store.dispatch(setLastNightEliminated(data.eliminated || null));
   });
 
   socket.on('voteUpdate', (data) => {

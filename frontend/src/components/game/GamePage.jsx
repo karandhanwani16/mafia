@@ -6,6 +6,7 @@ import { setGameState, updatePhase, fetchGameState } from '../../store/slices/ga
 import { setRoom } from '../../store/slices/roomSlice';
 import { setRole } from '../../store/slices/playerSlice';
 import { playSound } from '../../config/sounds';
+import { useSoundControls } from '../../contexts/SoundControlsContext';
 import NightPhase from './NightPhase';
 import DayPhase from './DayPhase';
 import Chat from './Chat';
@@ -19,6 +20,7 @@ import { getRoleColor, getRoleIcon, getRoleDisplayName } from '../../utils/helpe
 const GamePage = () => {
   const { gameId } = useParams();
   const dispatch = useDispatch();
+  const openSoundControls = useSoundControls();
   const { phase, round, players, winner, gameId: stateGameId, loading, error } = useSelector((state) => state.game);
   const { currentRoom } = useSelector((state) => state.room);
   const { currentPlayer } = useSelector((state) => state.player);
@@ -77,12 +79,7 @@ const GamePage = () => {
       dispatch(setGameState(data));
       setShowRoleReveal(true);
       playSound('gameStart');
-    });
-
-    socketInstance.on('phaseChanged', (data) => {
-      dispatch(updatePhase(data));
-      if (data.phase === 'night') playSound('phaseNight');
-      else if (data.phase === 'day' || data.phase === 'voting' || data.phase === 'results') playSound('phaseDay');
+      playSound('phaseNight');
     });
 
     socketInstance.on('gameEnd', (data) => {
@@ -188,8 +185,19 @@ const GamePage = () => {
                   <span>{getRoleDisplayName(currentPlayer.role)}</span>
                 </span>
               )}
-              <div className="text-mafia-muted text-sm sm:ml-auto">
-                {players.filter(p => p.isAlive).length} players alive
+              <div className="text-mafia-muted text-sm sm:ml-auto flex items-center gap-2">
+                <span>{players.filter(p => p.isAlive).length} players alive</span>
+                <button
+                  type="button"
+                  onClick={openSoundControls}
+                  className="p-1.5 rounded-lg text-mafia-muted hover:text-mafia-gold hover:bg-mafia-surface border border-transparent hover:border-mafia-border transition-all"
+                  title="Music & sound"
+                  aria-label="Game controls (music & sound)"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>

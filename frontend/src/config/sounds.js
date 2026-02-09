@@ -4,7 +4,7 @@
  * Paths are relative to the app origin (e.g. in dev: http://localhost:5173/sounds/...).
  */
 
-import { getSfxMultiplier } from './soundManager.js';
+import { getSfxMultiplier, unlockAudio } from './soundManager.js';
 
 const SOUND_BASE = '/sounds';
 
@@ -53,6 +53,8 @@ export function playSound(key, options = {}) {
   const sfx = getSfxMultiplier();
   if (sfx <= 0) return;
 
+  unlockAudio(); // ensure audio is unlocked in this user gesture before play()
+
   try {
     const audio = new Audio(path);
     let vol = sfx;
@@ -60,8 +62,14 @@ export function playSound(key, options = {}) {
       vol *= Math.max(0, Math.min(1, options.volume));
     }
     audio.volume = vol;
-    audio.play().catch(() => {});
-  } catch {
-    // ignore
+    audio.play().catch((err) => {
+      if (import.meta.env.DEV) {
+        console.warn('[sounds] play failed:', key, err?.message || err);
+      }
+    });
+  } catch (e) {
+    if (import.meta.env.DEV) {
+      console.warn('[sounds] play error:', key, e?.message || e);
+    }
   }
 }

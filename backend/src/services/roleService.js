@@ -43,6 +43,13 @@ export const validateAction = (playerId, actionType, targetId, gameState, player
     return { valid: false, error: 'Actions can only be performed during night phase' };
   }
 
+  // During night, only the current step's role can act
+  const nightStep = gameState.nightStep || 'mafia';
+  const stepRole = nightStep === 'mafia' ? ROLES.MAFIA : nightStep === 'doctor' ? ROLES.DOCTOR : ROLES.DETECTIVE;
+  if (playerRole !== stepRole) {
+    return { valid: false, error: `Only ${nightStep} can act during this part of the night` };
+  }
+
   // Check if target exists and is alive
   const target = gameState.players.find(p => p.playerId === targetId);
   if (!target) {

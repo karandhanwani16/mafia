@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-const TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour – admin stays logged in across reloads until expiry
 const PAYLOAD_SEP = '.';
 
 /**

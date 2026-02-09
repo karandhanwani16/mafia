@@ -2,9 +2,10 @@ const base = import.meta.env.VITE_API_URL || '';
 
 const ADMIN_TOKEN_KEY = 'admin_token';
 
+/** Use localStorage so auth survives page reload and tab close (token has its own TTL). */
 export function getStoredToken() {
   try {
-    return sessionStorage.getItem(ADMIN_TOKEN_KEY);
+    return localStorage.getItem(ADMIN_TOKEN_KEY);
   } catch {
     return null;
   }
@@ -12,8 +13,8 @@ export function getStoredToken() {
 
 export function setStoredToken(token) {
   try {
-    if (token) sessionStorage.setItem(ADMIN_TOKEN_KEY, token);
-    else sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+    if (token) localStorage.setItem(ADMIN_TOKEN_KEY, token);
+    else localStorage.removeItem(ADMIN_TOKEN_KEY);
   } catch {}
 }
 

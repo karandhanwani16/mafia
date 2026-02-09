@@ -155,6 +155,7 @@ export const getGameState = async (req, res) => {
       roomId: game.roomId,
       roomCode: room?.roomCode ?? null,
       phase: game.phase,
+      nightStep: game.phase === 'night' ? (game.nightStep || 'mafia') : null,
       round: game.round,
       players: visiblePlayers,
       eliminatedPlayers: game.eliminatedPlayers,

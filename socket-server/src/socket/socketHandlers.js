@@ -118,29 +118,41 @@ export const setupSocketHandlers = (io) => {
           { gameId },
           { $set: { nightActions: updatedGame.nightActions } }
         );
-        const updatedGameState = await Game.findOne({ gameId });
-        const allActionsSubmitted =
-          (!updatedGameState.players.some(p => p.role === 'mafia' && p.isAlive) || updatedGameState.nightActions.mafia.submitted) &&
-          (!updatedGameState.players.some(p => p.role === 'doctor' && p.isAlive) || updatedGameState.nightActions.doctor.submitted) &&
-          (!updatedGameState.players.some(p => p.role === 'detective' && p.isAlive) || updatedGameState.nightActions.detective.submitted);
-        if (allActionsSubmitted) {
+        const currentStep = game.nightStep || 'mafia';
+        const hasDoctor = game.players.some(p => p.role === 'doctor' && p.isAlive);
+        const hasDetective = game.players.some(p => p.role === 'detective' && p.isAlive);
+
+        let nextStep = null;
+        if (currentStep === 'mafia') {
+          nextStep = hasDoctor ? 'doctor' : hasDetective ? 'detective' : null;
+        } else if (currentStep === 'doctor') {
+          nextStep = hasDetective ? 'detective' : null;
+        } else {
+          nextStep = null;
+        }
+
+        const STEP_DELAY_MS = 2200;
+
+        if (nextStep) {
+          await Game.findOneAndUpdate({ gameId }, { $set: { nightStep: nextStep } });
+          if (currentStep === 'mafia') io.to(roomId).emit('nightStepMafia');
+          else if (currentStep === 'doctor') io.to(roomId).emit('nightStepDoctor');
+          io.to(roomId).emit('nightStepChanged', { nightStep: nextStep });
+          socket.emit('actionReceived', { success: true });
+        } else {
+          io.to(roomId).emit('nightStepDetective');
           const { game: dayGame, nightResults } = await transitionToDay(gameId);
           const winCheck = await checkWinConditions(gameId);
-          // Emit night flow in order so all clients play sounds: 1) mafia kill 2) doctor save 3) detective investigate
-          const STEP_DELAY_MS = 2500;
-          io.to(roomId).emit('nightStepMafia');
           setTimeout(() => {
-            io.to(roomId).emit('nightStepDoctor');
-            setTimeout(() => {
-              io.to(roomId).emit('nightStepDetective');
-              setTimeout(() => {
-                io.to(roomId).emit('phaseChanged', { phase: 'day', round: dayGame.round, nightResults });
-                io.to(roomId).emit('dayPhaseStarted', { eliminated: nightResults.eliminated, saved: nightResults.saved, round: dayGame.round });
-                if (winCheck.winner) io.to(roomId).emit('gameEnd', { winner: winCheck.winner, game: winCheck.game });
-              }, STEP_DELAY_MS);
-            }, STEP_DELAY_MS);
+            io.to(roomId).emit('phaseChanged', { phase: 'day', round: dayGame.round, nightResults });
+            io.to(roomId).emit('dayPhaseStarted', {
+              eliminated: nightResults.eliminated,
+              saved: nightResults.saved,
+              round: dayGame.round,
+              detectiveResult: nightResults.detectiveResult || null
+            });
+            if (winCheck.winner) io.to(roomId).emit('gameEnd', { winner: winCheck.winner, game: winCheck.game });
           }, STEP_DELAY_MS);
-        } else {
           socket.emit('actionReceived', { success: true });
         }
       } catch (error) {
@@ -174,10 +186,12 @@ export const setupSocketHandlers = (io) => {
           else {
             const nextGame = await Game.findOne({ gameId });
             nextGame.phase = 'night';
+            nextGame.nightStep = 'mafia';
             nextGame.round += 1;
             nextGame.phaseStartTime = new Date();
             await nextGame.save();
-            io.to(roomId).emit('phaseChanged', { phase: 'night', round: nextGame.round });
+            io.to(roomId).emit('phaseChanged', { phase: 'night', round: nextGame.round, nightStep: 'mafia' });
+            io.to(roomId).emit('nightStepChanged', { nightStep: 'mafia' });
             io.to(roomId).emit('nightActionRequired', { round: nextGame.round });
           }
         }

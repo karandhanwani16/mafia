@@ -18,6 +18,11 @@ const gameSchema = new mongoose.Schema({
     enum: ['night', 'day', 'voting', 'results'],
     default: 'night'
   },
+  nightStep: {
+    type: String,
+    enum: ['mafia', 'doctor', 'detective'],
+    default: 'mafia'
+  },
   round: {
     type: Number,
     default: 1

@@ -88,6 +88,7 @@ export const startGame = async (roomId) => {
       gameId,
       roomId,
       phase: GAME_PHASES.NIGHT,
+      nightStep: 'mafia',
       round: 1,
       players: playersWithRoles.map(p => ({
         playerId: p.playerId,

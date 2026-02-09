@@ -1,41 +1,36 @@
-import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { getSocket } from '../../services/socket';
-import { playSound } from '../../config/sounds';
 import Voting from './Voting';
 import PlayerCard from './PlayerCard';
 import { GAME_PHASES } from '../../utils/constants';
+import { ROLES } from '../../utils/constants';
 
 const DayPhase = () => {
-  const { players, phase, eliminatedPlayers, round } = useSelector((state) => state.game);
+  const { players, phase, round, lastDayDetectiveResult, lastNightEliminated } = useSelector((state) => state.game);
   const { currentPlayer } = useSelector((state) => state.player);
-  const [lastEliminated, setLastEliminated] = useState(null);
-  const socket = getSocket();
-
-  useEffect(() => {
-    socket.on('dayPhaseStarted', (data) => {
-      if (data.eliminated) {
-        setLastEliminated(data.eliminated);
-        playSound('playerEliminated');
-      }
-    });
-
-    return () => {
-      socket.off('dayPhaseStarted');
-    };
-  }, [socket]);
 
   const alivePlayers = players.filter(p => p.isAlive);
   const deadPlayers = players.filter(p => !p.isAlive);
+  const eliminatedPlayer = lastNightEliminated ? players.find(p => p.playerId === lastNightEliminated) : null;
+  const investigatedPlayer = lastDayDetectiveResult?.targetId ? players.find(p => p.playerId === lastDayDetectiveResult.targetId) : null;
 
   return (
     <div className="mafia-card p-6 animate-fade-in-up">
       <h3 className="font-display text-xl font-bold text-mafia-gold mb-4 tracking-wide">☀️ Day Phase — Round {round}</h3>
 
-      {lastEliminated && (
+      {lastNightEliminated && eliminatedPlayer ? (
         <div className="bg-mafia-red/30 border-2 border-mafia-red rounded-lg p-4 mb-4 animate-shake">
-          <p className="text-mafia-cream">
-            {players.find(p => p.playerId === lastEliminated)?.username || 'A player'} was eliminated during the night!
+          <p className="text-mafia-cream">{eliminatedPlayer.username} was eliminated during the night!</p>
+        </div>
+      ) : (
+        <div className="bg-mafia-surface border-2 border-mafia-border rounded-lg p-4 mb-4">
+          <p className="text-mafia-cream">No one was found dead. The town wakes safely.</p>
+        </div>
+      )}
+
+      {currentPlayer.role === ROLES.DETECTIVE && lastDayDetectiveResult && (
+        <div className="bg-mafia-gold/20 border-2 border-mafia-gold rounded-lg p-4 mb-4">
+          <p className="text-mafia-cream font-medium">
+            Your investigation: {investigatedPlayer?.username || 'That player'} is <span className="text-mafia-gold">{lastDayDetectiveResult.result === 'mafia' ? 'Mafia' : 'Civilian'}</span>.
           </p>
         </div>
       )}

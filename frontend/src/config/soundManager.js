@@ -110,4 +110,30 @@ export function getSfxMultiplier() {
   return settings.sfxVolume;
 }
 
+let audioUnlocked = false;
+const UNLOCK_SOUND = `${SOUND_BASE}/ui-click.mp3`;
+
+/**
+ * Call once on first user interaction (click/tap/key) to unlock audio playback.
+ * Required on many browsers (especially Safari/iOS) before any sound can play.
+ */
+export function unlockAudio() {
+  if (audioUnlocked) return;
+  try {
+    const audio = new Audio(UNLOCK_SOUND);
+    audio.volume = 0;
+    audio.play().then(() => {
+      audio.pause();
+      audio.remove();
+    }).catch(() => {});
+    audioUnlocked = true;
+  } catch {
+    // ignore
+  }
+}
+
+export function isAudioUnlocked() {
+  return audioUnlocked;
+}
+
 export { BACKGROUND_MUSIC_PATH };

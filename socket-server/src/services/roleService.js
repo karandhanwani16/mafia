@@ -5,6 +5,10 @@ export const validateAction = (playerId, actionType, targetId, gameState, player
   if (!player || !player.isAlive) return { valid: false, error: 'Dead players cannot perform actions' };
   if (gameState.phase !== 'night' && actionType !== ACTIONS.KILL) return { valid: false, error: 'Actions can only be performed during night phase' };
 
+  const nightStep = gameState.nightStep || 'mafia';
+  const stepRole = nightStep === 'mafia' ? ROLES.MAFIA : nightStep === 'doctor' ? ROLES.DOCTOR : ROLES.DETECTIVE;
+  if (playerRole !== stepRole) return { valid: false, error: `Only ${nightStep} can act during this part of the night` };
+
   const target = gameState.players.find(p => p.playerId === targetId);
   if (!target) return { valid: false, error: 'Target player not found' };
   if (!target.isAlive) return { valid: false, error: 'Cannot target dead players' };

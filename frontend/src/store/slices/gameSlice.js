@@ -4,6 +4,7 @@ import { gameAPI } from '../../services/api';
 const initialState = {
   gameId: null,
   phase: null,
+  nightStep: null, // 'mafia' | 'doctor' | 'detective' during night
   round: 1,
   players: [],
   eliminatedPlayers: [],
@@ -13,6 +14,8 @@ const initialState = {
   winner: null,
   phaseStartTime: null,
   detectiveResult: null,
+  lastDayDetectiveResult: null,
+  lastNightEliminated: null, // playerId of who died last night (null = no one)
   loading: false,
   error: null
 };
@@ -31,8 +34,16 @@ const gameSlice = createSlice({
     },
     updatePhase: (state, action) => {
       state.phase = action.payload.phase;
-      state.round = action.payload.round || state.round;
+      state.round = action.payload.round ?? state.round;
+      state.nightStep = action.payload.nightStep ?? (action.payload.phase === 'night' ? 'mafia' : null);
       state.phaseStartTime = action.payload.phaseStartTime || new Date().toISOString();
+      if (action.payload.phase === 'night') {
+        state.lastDayDetectiveResult = null;
+        state.lastNightEliminated = null;
+      }
+    },
+    setNightStep: (state, action) => {
+      state.nightStep = action.payload;
     },
     addPlayer: (state, action) => {
       if (!state.players.find(p => p.playerId === action.payload.playerId)) {
@@ -66,6 +77,12 @@ const gameSlice = createSlice({
     },
     setDetectiveResult: (state, action) => {
       state.detectiveResult = action.payload;
+    },
+    setLastDayDetectiveResult: (state, action) => {
+      state.lastDayDetectiveResult = action.payload;
+    },
+    setLastNightEliminated: (state, action) => {
+      state.lastNightEliminated = action.payload;
     },
     setLoading: (state, action) => {
       state.loading = action.payload;
@@ -107,6 +124,7 @@ export const fetchGameState = createAsyncThunk(
 export const {
   setGameState,
   updatePhase,
+  setNightStep,
   addPlayer,
   eliminatePlayer,
   recordVote,
@@ -114,6 +132,8 @@ export const {
   setVotes,
   setWinner,
   setDetectiveResult,
+  setLastDayDetectiveResult,
+  setLastNightEliminated,
   setLoading,
   setError,
   resetGame

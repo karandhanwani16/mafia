@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Setup from './pages/Setup';
 import Dashboard from './pages/Dashboard';
-import { getMe, getNeedsSetup } from './api';
+import { getMe, getNeedsSetup, setStoredToken } from './api';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -16,6 +16,7 @@ function App() {
       .catch(async (e) => {
         setUser(null);
         if (e.status === 401) {
+          setStoredToken(null); // clear expired or invalid token so next login is fresh
           try {
             const { needsSetup: need } = await getNeedsSetup();
             setNeedsSetup(need);
