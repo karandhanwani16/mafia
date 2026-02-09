@@ -66,7 +66,12 @@ export function setMusicMuted(muted) {
   settings.musicMuted = Boolean(muted);
   saveSettings();
   if (backgroundAudio) {
-    backgroundAudio.volume = settings.musicMuted ? 0 : settings.musicVolume;
+    if (settings.musicMuted) {
+      backgroundAudio.pause();
+    } else {
+      backgroundAudio.volume = settings.musicVolume;
+      backgroundAudio.play().catch(() => {});
+    }
   }
 }
 
@@ -78,6 +83,23 @@ export function setSfxVolume(value) {
 export function setSfxMuted(muted) {
   settings.sfxMuted = Boolean(muted);
   saveSettings();
+}
+
+/**
+ * Mute or unmute both background music and sound effects.
+ */
+export function setMuteAll(muted) {
+  settings.musicMuted = Boolean(muted);
+  settings.sfxMuted = Boolean(muted);
+  saveSettings();
+  if (backgroundAudio) {
+    if (settings.musicMuted) {
+      backgroundAudio.pause();
+    } else {
+      backgroundAudio.volume = settings.musicVolume;
+      backgroundAudio.play().catch(() => {});
+    }
+  }
 }
 
 /**

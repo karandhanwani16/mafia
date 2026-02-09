@@ -44,23 +44,27 @@ export const transitionToDay = async (gameId) => {
   return { game, nightResults };
 };
 
-export const processVoting = async (gameId) => {
-  const game = await Game.findOne({ gameId });
+export const processVoting = async (gameId, roomId) => {
+  const game = await Game.findOne(roomId ? { gameId, roomId } : { gameId });
   if (!game) throw new Error('Game not found');
   const { resolveVoting } = await import('./voteService.js');
   const result = resolveVoting(game);
+  const round = game.round;
+  const votesSnapshot = Array.isArray(game.votes) ? [...game.votes] : [];
 
   if (result.eliminated) await eliminatePlayer(gameId, result.eliminated);
 
-  game.voteResults.push({
-    round: game.round,
-    votes: game.votes || [],
+  const gameToUpdate = await Game.findOne(roomId ? { gameId, roomId } : { gameId });
+  if (!gameToUpdate) throw new Error('Game not found');
+  gameToUpdate.voteResults.push({
+    round,
+    votes: votesSnapshot,
     eliminated: result.eliminated,
     timestamp: new Date()
   });
-  game.votes = [];
-  game.phase = result.eliminated ? GAME_PHASES.RESULTS : GAME_PHASES.DAY;
-  await game.save();
+  gameToUpdate.votes = [];
+  gameToUpdate.phase = result.eliminated ? GAME_PHASES.RESULTS : GAME_PHASES.DAY;
+  await gameToUpdate.save();
   return result;
 };
 

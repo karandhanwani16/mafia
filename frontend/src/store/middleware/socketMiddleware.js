@@ -24,11 +24,6 @@ import { addChatMessage, clearChatMessages } from '../slices/chatSlice';
 export const socketMiddleware = (store) => {
   const socket = getSocket();
 
-  // Night phase flow: all players hear mafia → doctor → detective in order
-  socket.on('nightStepMafia', () => playSound('nightStepMafia'));
-  socket.on('nightStepDoctor', () => playSound('nightStepDoctor'));
-  socket.on('nightStepDetective', () => playSound('nightStepDetective'));
-
   socket.on('connect', () => {
     store.dispatch(setSocketStatus(true));
   });
@@ -60,6 +55,11 @@ export const socketMiddleware = (store) => {
 
   socket.on('nightStepChanged', (data) => {
     store.dispatch(setNightStep(data.nightStep));
+    // Play step sound when it's that role's turn to act (not when they submit)
+    const step = data?.nightStep;
+    if (step === 'mafia') playSound('nightStepMafia');
+    else if (step === 'doctor') playSound('nightStepDoctor');
+    else if (step === 'detective') playSound('nightStepDetective');
   });
 
   socket.on('dayPhaseStarted', (data) => {
@@ -82,6 +82,9 @@ export const socketMiddleware = (store) => {
   });
 
   socket.on('voteResults', (data) => {
+    if (data.phase) store.dispatch(updatePhase({ phase: data.phase }));
+    if (data.votes) store.dispatch(setVotes(data.votes));
+    if (data.voteCount) store.dispatch(setVoteCount(data.voteCount));
     if (data.eliminated) {
       store.dispatch(eliminatePlayer(data.eliminated));
       const myId = store.getState().player?.currentPlayer?.playerId;

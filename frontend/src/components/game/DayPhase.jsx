@@ -95,7 +95,7 @@ const DayPhase = () => {
         </div>
       )}
 
-      {(phase === GAME_PHASES.VOTING || phase === GAME_PHASES.DAY) && <Voting />}
+      {(phase === GAME_PHASES.VOTING || phase === GAME_PHASES.DAY || phase === GAME_PHASES.RESULTS) && <Voting />}
     </div>
   );
 };

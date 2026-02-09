@@ -1,15 +1,18 @@
 export const submitVote = (gameState, voterId, targetId) => {
-  const voter = gameState.players.find(p => p.playerId === voterId);
+  const vid = String(voterId);
+  const tid = String(targetId);
+  const voter = gameState.players.find(p => String(p.playerId) === vid);
   if (!voter || !voter.isAlive) return { success: false, error: 'Dead players cannot vote' };
 
-  const target = gameState.players.find(p => p.playerId === targetId);
+  const target = gameState.players.find(p => String(p.playerId) === tid);
   if (!target) return { success: false, error: 'Target player not found' };
   if (!target.isAlive) return { success: false, error: 'Cannot vote for dead players' };
   if (gameState.phase !== 'voting' && gameState.phase !== 'day') return { success: false, error: 'Voting is only allowed during day/voting phase' };
 
   if (!gameState.votes) gameState.votes = [];
-  gameState.votes = gameState.votes.filter(v => v.voterId !== voterId);
-  gameState.votes.push({ voterId, targetId, timestamp: new Date() });
+  const voterIdStr = String(voterId);
+  gameState.votes = gameState.votes.filter(v => String(v.voterId) !== voterIdStr);
+  gameState.votes.push({ voterId: voterIdStr, targetId: String(targetId), timestamp: new Date() });
   return { success: true, gameState };
 };
 
@@ -17,7 +20,8 @@ export const getVoteCount = (gameState) => {
   if (!gameState.votes || gameState.votes.length === 0) return {};
   const voteCount = {};
   gameState.votes.forEach(vote => {
-    voteCount[vote.targetId] = (voteCount[vote.targetId] || 0) + 1;
+    const key = String(vote.targetId);
+    voteCount[key] = (voteCount[key] || 0) + 1;
   });
   return voteCount;
 };

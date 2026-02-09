@@ -6,9 +6,43 @@ import {
   setMusicMuted,
   setSfxVolume,
   setSfxMuted,
+  setMuteAll,
   initBackgroundMusic
 } from '../../config/soundManager';
 import { playSound } from '../../config/sounds';
+
+function TogglePill({ value, onToggle, onLabel = 'On', offLabel = 'Off' }) {
+  return (
+    <div
+      role="group"
+      aria-label={value ? `${onLabel} (active)` : `${offLabel} (active)`}
+      className="inline-flex rounded-lg border-2 border-mafia-border bg-mafia-surface p-0.5 shadow-mafia-inner"
+    >
+      <button
+        type="button"
+        onClick={() => onToggle(true)}
+        className={`min-w-[3rem] px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+          value
+            ? 'bg-mafia-gold text-mafia-bg border border-mafia-gold shadow-mafia-gold'
+            : 'text-mafia-muted hover:text-mafia-cream border border-transparent'
+        }`}
+      >
+        {onLabel}
+      </button>
+      <button
+        type="button"
+        onClick={() => onToggle(false)}
+        className={`min-w-[3rem] px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+          !value
+            ? 'bg-mafia-gold text-mafia-bg border border-mafia-gold shadow-mafia-gold'
+            : 'text-mafia-muted hover:text-mafia-cream border border-transparent'
+        }`}
+      >
+        {offLabel}
+      </button>
+    </div>
+  );
+}
 
 export default function GameControlsModal({ isOpen, onClose }) {
   const [musicVolume, setMusicVolumeState] = useState(0.35);
@@ -32,10 +66,9 @@ export default function GameControlsModal({ isOpen, onClose }) {
     setMusicVolume(v);
   };
 
-  const handleMusicMuted = (e) => {
-    const m = e.target.checked;
-    setMusicMutedState(m);
-    setMusicMuted(m);
+  const handleMusicMuted = (muted) => {
+    setMusicMutedState(muted);
+    setMusicMuted(muted);
     initBackgroundMusic();
   };
 
@@ -45,33 +78,51 @@ export default function GameControlsModal({ isOpen, onClose }) {
     setSfxVolume(v);
   };
 
-  const handleSfxMuted = (e) => {
-    const m = e.target.checked;
-    setSfxMutedState(m);
-    setSfxMuted(m);
+  const handleSfxMuted = (muted) => {
+    setSfxMutedState(muted);
+    setSfxMuted(muted);
+  };
+
+  const handleMuteAll = () => {
+    const mute = !musicMuted || !sfxMuted;
+    setMusicMutedState(mute);
+    setSfxMutedState(mute);
+    setMuteAll(mute);
+    if (!mute) initBackgroundMusic();
   };
 
   const testSfx = () => {
     playSound('uiClick');
   };
 
+  const allMuted = musicMuted && sfxMuted;
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Game controls">
       <div className="space-y-6">
+        {/* Mute all */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b-2 border-mafia-border">
+          <span className="text-mafia-cream font-medium">All sound</span>
+          <button
+            type="button"
+            onClick={handleMuteAll}
+            className={`px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all ${
+              allMuted
+                ? 'border-mafia-gold bg-mafia-gold/20 text-mafia-gold hover:bg-mafia-gold/30'
+                : 'border-mafia-border bg-mafia-surface text-mafia-muted hover:text-mafia-cream hover:border-mafia-border-light'
+            }`}
+          >
+            {allMuted ? 'Unmute all' : 'Mute all'}
+          </button>
+        </div>
+
         {/* Background music */}
         <div>
-          <div className="flex items-center justify-between gap-4 mb-2">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={!musicMuted}
-                onChange={handleMusicMuted}
-                className="w-4 h-4 rounded border-mafia-border bg-mafia-surface text-[#c9a227] focus:ring-mafia-gold"
-              />
-              <span className="text-mafia-cream font-medium">Background music</span>
-            </label>
-            <span className="text-mafia-muted text-sm">Plays slowly in the background</span>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+            <span className="text-mafia-cream font-medium">Background music</span>
+            <TogglePill value={!musicMuted} onToggle={(on) => handleMusicMuted(!on)} onLabel="On" offLabel="Off" />
           </div>
+          <p className="text-mafia-muted text-sm mb-2">Plays slowly in the background</p>
           <div className="flex items-center gap-3 mt-2">
             <input
               type="range"
@@ -89,24 +140,19 @@ export default function GameControlsModal({ isOpen, onClose }) {
 
         {/* Sound effects */}
         <div>
-          <div className="flex items-center justify-between gap-4 mb-2">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={!sfxMuted}
-                onChange={handleSfxMuted}
-                className="w-4 h-4 rounded border-mafia-border bg-mafia-surface text-[#c9a227] focus:ring-mafia-gold"
-              />
-              <span className="text-mafia-cream font-medium">Sound effects</span>
-            </label>
-            <button
-              type="button"
-              onClick={testSfx}
-              disabled={sfxMuted}
-              className="text-sm px-2 py-1 rounded bg-mafia-surface border border-mafia-border text-mafia-muted hover:text-mafia-gold hover:border-mafia-gold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Test
-            </button>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+            <span className="text-mafia-cream font-medium">Sound effects</span>
+            <div className="flex items-center gap-2">
+              <TogglePill value={!sfxMuted} onToggle={(on) => handleSfxMuted(!on)} onLabel="On" offLabel="Off" />
+              <button
+                type="button"
+                onClick={testSfx}
+                disabled={sfxMuted}
+                className="text-sm px-2 py-1.5 rounded-lg bg-mafia-surface border-2 border-mafia-border text-mafia-muted hover:text-mafia-gold hover:border-mafia-gold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Test
+              </button>
+            </div>
           </div>
           <div className="flex items-center gap-3 mt-2">
             <input

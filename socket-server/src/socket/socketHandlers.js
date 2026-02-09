@@ -109,11 +109,15 @@ export const setupSocketHandlers = (io) => {
         const validation = validateAction(playerId, actionType, targetId, gameState, player.role);
         if (!validation.valid) { socket.emit('error', { message: validation.error }); return; }
         let updatedGame;
-        switch (player.role) {
-          case 'mafia': updatedGame = processMafiaAction(gameState, targetId); break;
-          case 'doctor': updatedGame = processDoctorAction(gameState, targetId); break;
-          case 'detective': updatedGame = processDetectiveAction(gameState, targetId); break;
-          default: socket.emit('error', { message: 'Invalid role for action' }); return;
+        if (player.role === 'detective') {
+          const targetPlayer = await Player.findOne({ playerId: targetId, roomId }).select('role').lean();
+          updatedGame = processDetectiveAction(gameState, targetId, targetPlayer?.role);
+        } else {
+          switch (player.role) {
+            case 'mafia': updatedGame = processMafiaAction(gameState, targetId); break;
+            case 'doctor': updatedGame = processDoctorAction(gameState, targetId); break;
+            default: socket.emit('error', { message: 'Invalid role for action' }); return;
+          }
         }
         await Game.findOneAndUpdate(
           { gameId },
@@ -192,16 +196,22 @@ export const setupSocketHandlers = (io) => {
           alivePlayers.length > 0 &&
           alivePlayers.every((p) => p.playerId != null && voters.has(String(p.playerId)));
         if (allAliveVoted) {
-          const voteResult = await processVoting(gameId);
+          const voteResult = await processVoting(gameId, roomId);
           const winCheck = await checkWinConditions(gameId);
-          const voteResultsPayload = { eliminated: voteResult.eliminated, tie: voteResult.tie, votes: updatedGame.votes };
+          const voteCountForPayload = getVoteCount(updatedGame);
+          const voteResultsPayload = {
+            eliminated: voteResult.eliminated,
+            tie: voteResult.tie,
+            votes: updatedGame.votes,
+            voteCount: voteCountForPayload,
+            phase: voteResult.eliminated ? 'results' : 'day'
+          };
           io.to(roomId).emit('voteResults', voteResultsPayload);
           if (voteResult.eliminated) io.to(roomId).emit('playerEliminated', { playerId: voteResult.eliminated });
           if (winCheck.winner) {
             io.to(roomId).emit('gameEnd', { winner: winCheck.winner, game: winCheck.game });
           } else {
-            // Use gameId only so we always find the game (same DB as processVoting)
-            const nextGame = await Game.findOne({ gameId });
+            const nextGame = await Game.findOne({ gameId, roomId });
             if (nextGame) {
               nextGame.phase = 'night';
               nextGame.nightStep = 'mafia';
@@ -213,9 +223,13 @@ export const setupSocketHandlers = (io) => {
                 detective: { targetId: null, submitted: false, result: null }
               };
               await nextGame.save();
-              io.to(roomId).emit('phaseChanged', { phase: 'night', round: nextGame.round, nightStep: 'mafia' });
-              io.to(roomId).emit('nightStepChanged', { nightStep: 'mafia' });
-              io.to(roomId).emit('nightActionRequired', { round: nextGame.round });
+              const round = nextGame.round;
+              const emitNextRound = () => {
+                io.to(roomId).emit('phaseChanged', { phase: 'night', round, nightStep: 'mafia' });
+                io.to(roomId).emit('nightStepChanged', { nightStep: 'mafia' });
+                io.to(roomId).emit('nightActionRequired', { round });
+              };
+              setTimeout(emitNextRound, 3500);
             }
           }
         }

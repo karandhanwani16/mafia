@@ -9,7 +9,8 @@ export const validateAction = (playerId, actionType, targetId, gameState, player
   const stepRole = nightStep === 'mafia' ? ROLES.MAFIA : nightStep === 'doctor' ? ROLES.DOCTOR : ROLES.DETECTIVE;
   if (playerRole !== stepRole) return { valid: false, error: `Only ${nightStep} can act during this part of the night` };
 
-  const target = gameState.players.find(p => p.playerId === targetId);
+  const targetIdStr = String(targetId);
+  const target = gameState.players.find(p => String(p.playerId) === targetIdStr);
   if (!target) return { valid: false, error: 'Target player not found' };
   if (!target.isAlive) return { valid: false, error: 'Cannot target dead players' };
 
@@ -41,18 +42,21 @@ export const processDoctorAction = (gameState, targetId) => ({
   nightActions: { ...gameState.nightActions, doctor: { targetId, submitted: true } }
 });
 
-export const processDetectiveAction = (gameState, targetId) => {
-  const target = gameState.players.find((p) => p.playerId === targetId);
-  if (!target) {
-    return {
-      ...gameState,
-      nightActions: { ...gameState.nightActions, detective: { targetId, submitted: true, result: 'civilian' } }
-    };
+/**
+ * @param {object} gameState
+ * @param {string} targetId
+ * @param {string} [targetRole] - If provided, use this as the investigated player's role (e.g. from Player collection). Otherwise use gameState.players.
+ */
+export const processDetectiveAction = (gameState, targetId, targetRole) => {
+  const targetIdStr = String(targetId);
+  let role = (targetRole && String(targetRole).toLowerCase()) || '';
+  if (role === '') {
+    const target = gameState.players.find((p) => String(p.playerId) === targetIdStr);
+    if (target) role = (target.role && String(target.role).toLowerCase()) || '';
   }
-  const role = (target.role && String(target.role).toLowerCase()) || '';
   const result = role === 'mafia' ? 'mafia' : 'civilian';
   return {
     ...gameState,
-    nightActions: { ...gameState.nightActions, detective: { targetId, submitted: true, result } }
+    nightActions: { ...gameState.nightActions, detective: { targetId: targetIdStr, submitted: true, result } }
   };
 };
