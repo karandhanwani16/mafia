@@ -42,8 +42,15 @@ export const processDoctorAction = (gameState, targetId) => ({
 });
 
 export const processDetectiveAction = (gameState, targetId) => {
-  const target = gameState.players.find(p => p.playerId === targetId);
-  const result = target.role === ROLES.MAFIA ? 'mafia' : 'civilian';
+  const target = gameState.players.find((p) => p.playerId === targetId);
+  if (!target) {
+    return {
+      ...gameState,
+      nightActions: { ...gameState.nightActions, detective: { targetId, submitted: true, result: 'civilian' } }
+    };
+  }
+  const role = (target.role && String(target.role).toLowerCase()) || '';
+  const result = role === 'mafia' ? 'mafia' : 'civilian';
   return {
     ...gameState,
     nightActions: { ...gameState.nightActions, detective: { targetId, submitted: true, result } }

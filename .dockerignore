@@ -40,6 +40,4 @@ __tests__
 mafia.prd
 .cursorignore
 
-# Frontend dev
-frontend/public/sounds/*
-!frontend/public/sounds/.gitkeep
+# Frontend dev (keep public/sounds so production has audio files)

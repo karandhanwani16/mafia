@@ -65,7 +65,8 @@ const DayPhase = () => {
       {currentPlayer.role === ROLES.DETECTIVE && lastDayDetectiveResult && (
         <div className="bg-mafia-gold/20 border-2 border-mafia-gold rounded-lg p-4 mb-4">
           <p className="text-mafia-cream font-medium">
-            Your investigation: {investigatedPlayer?.username || 'That player'} is <span className="text-mafia-gold">{lastDayDetectiveResult.result === 'mafia' ? 'Mafia' : 'Civilian'}</span>.
+            Your investigation: <span className="text-mafia-gold font-semibold">{investigatedPlayer?.username || 'That player'}</span>{' '}
+            {lastDayDetectiveResult.result === 'mafia' ? 'is mafia.' : 'is not mafia.'}
           </p>
         </div>
       )}

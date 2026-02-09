@@ -104,14 +104,15 @@ export const setupSocketHandlers = (io) => {
         if (!game) { socket.emit('error', { message: 'Game not found' }); return; }
         const player = await Player.findOne({ playerId });
         if (!player) { socket.emit('error', { message: 'Player not found' }); return; }
+        const gameState = game.toObject ? game.toObject() : { ...game, players: (game.players || []).map((p) => ({ ...(p.toObject ? p.toObject() : p), role: p.role })) };
         const { validateAction, processMafiaAction, processDoctorAction, processDetectiveAction } = await import('../services/roleService.js');
-        const validation = validateAction(playerId, actionType, targetId, game, player.role);
+        const validation = validateAction(playerId, actionType, targetId, gameState, player.role);
         if (!validation.valid) { socket.emit('error', { message: validation.error }); return; }
         let updatedGame;
         switch (player.role) {
-          case 'mafia': updatedGame = processMafiaAction(game, targetId); break;
-          case 'doctor': updatedGame = processDoctorAction(game, targetId); break;
-          case 'detective': updatedGame = processDetectiveAction(game, targetId); break;
+          case 'mafia': updatedGame = processMafiaAction(gameState, targetId); break;
+          case 'doctor': updatedGame = processDoctorAction(gameState, targetId); break;
+          case 'detective': updatedGame = processDetectiveAction(gameState, targetId); break;
           default: socket.emit('error', { message: 'Invalid role for action' }); return;
         }
         await Game.findOneAndUpdate(
@@ -193,17 +194,24 @@ export const setupSocketHandlers = (io) => {
         if (allAliveVoted) {
           const voteResult = await processVoting(gameId);
           const winCheck = await checkWinConditions(gameId);
-          io.to(roomId).emit('voteResults', { eliminated: voteResult.eliminated, tie: voteResult.tie, votes: updatedGame.votes });
+          const voteResultsPayload = { eliminated: voteResult.eliminated, tie: voteResult.tie, votes: updatedGame.votes };
+          io.to(roomId).emit('voteResults', voteResultsPayload);
           if (voteResult.eliminated) io.to(roomId).emit('playerEliminated', { playerId: voteResult.eliminated });
           if (winCheck.winner) {
             io.to(roomId).emit('gameEnd', { winner: winCheck.winner, game: winCheck.game });
           } else {
-            const nextGame = await Game.findOne({ gameId, roomId });
+            // Use gameId only so we always find the game (same DB as processVoting)
+            const nextGame = await Game.findOne({ gameId });
             if (nextGame) {
               nextGame.phase = 'night';
               nextGame.nightStep = 'mafia';
               nextGame.round += 1;
               nextGame.phaseStartTime = new Date();
+              nextGame.nightActions = {
+                mafia: { targetId: null, submitted: false },
+                doctor: { targetId: null, submitted: false },
+                detective: { targetId: null, submitted: false, result: null }
+              };
               await nextGame.save();
               io.to(roomId).emit('phaseChanged', { phase: 'night', round: nextGame.round, nightStep: 'mafia' });
               io.to(roomId).emit('nightStepChanged', { nightStep: 'mafia' });
