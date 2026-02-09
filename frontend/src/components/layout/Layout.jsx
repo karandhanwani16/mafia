@@ -12,6 +12,7 @@ function useAudioUnlock() {
       if (done.current) return;
       done.current = true;
       unlockAudio();
+      initBackgroundMusic();
       document.removeEventListener('click', unlock);
       document.removeEventListener('keydown', unlock);
       document.removeEventListener('touchstart', unlock);
@@ -30,16 +31,26 @@ function useAudioUnlock() {
 
 const Layout = ({ children }) => {
   const [controlsOpen, setControlsOpen] = useState(false);
+  const [soundReady, setSoundReady] = useState(false);
   useAudioUnlock();
-  const openSoundControls = useCallback(() => setControlsOpen(true), []);
 
   useEffect(() => {
-    initBackgroundMusic();
+    const onFirstInteraction = () => setSoundReady(true);
+    document.addEventListener('click', onFirstInteraction, { once: true });
+    document.addEventListener('keydown', onFirstInteraction, { once: true });
+    document.addEventListener('touchstart', onFirstInteraction, { once: true });
+    return () => {
+      document.removeEventListener('click', onFirstInteraction);
+      document.removeEventListener('keydown', onFirstInteraction);
+      document.removeEventListener('touchstart', onFirstInteraction);
+    };
   }, []);
+
+  const openSoundControls = useCallback(() => setControlsOpen(true), []);
 
   return (
     <SoundControlsProvider openSoundControls={openSoundControls}>
-      <div className="min-h-screen bg-mafia-bg">
+      <div className="min-h-screen bg-mafia-bg relative">
         <header className="bg-mafia-surface border-b-2 border-mafia-border shadow-mafia">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
             <Link
@@ -61,6 +72,11 @@ const Layout = ({ children }) => {
             </button>
           </div>
         </header>
+        {!soundReady && (
+          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-lg bg-mafia-card border-2 border-mafia-gold text-mafia-cream text-sm font-medium shadow-mafia animate-fade-in">
+            Tap anywhere to enable sound
+          </div>
+        )}
         <main className="container mx-auto px-4 py-8">
           {children}
         </main>

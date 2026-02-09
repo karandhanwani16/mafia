@@ -20,9 +20,9 @@ function loadSettings() {
       const parsed = JSON.parse(raw);
       return {
         musicVolume: clamp(Number(parsed.musicVolume), 0, 1, DEFAULT_SETTINGS.musicVolume),
-        musicMuted: Boolean(parsed.musicMuted),
+        musicMuted: parsed.musicMuted === true,
         sfxVolume: clamp(Number(parsed.sfxVolume), 0, 1, DEFAULT_SETTINGS.sfxVolume),
-        sfxMuted: Boolean(parsed.sfxMuted)
+        sfxMuted: parsed.sfxMuted === true
       };
     }
   } catch {
@@ -111,25 +111,30 @@ export function getSfxMultiplier() {
 }
 
 let audioUnlocked = false;
-// Minimal silent WAV (no network request) so unlock works even if /sounds/ files fail
-const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 
 /**
  * Call once on first user interaction (click/tap/key) to unlock audio playback.
- * Required on many browsers (especially Safari/iOS) before any sound can play.
+ * Plays a real sound file at volume 0 so the browser allows audio from this origin.
  */
 export function unlockAudio() {
   if (audioUnlocked) return;
   try {
-    const audio = new Audio(SILENT_WAV);
+    const audio = new Audio(`${SOUND_BASE}/ui-click.mp3`);
     audio.volume = 0;
-    audio.play().then(() => {
-      audio.pause();
-      audio.remove();
-    }).catch(() => {});
+    const p = audio.play();
+    if (p && typeof p.then === 'function') {
+      p.then(() => { audio.pause(); }).catch(() => {});
+    }
     audioUnlocked = true;
   } catch {
-    // ignore
+    try {
+      const fallback = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=');
+      fallback.volume = 0;
+      fallback.play().catch(() => {});
+      audioUnlocked = true;
+    } catch {
+      audioUnlocked = true;
+    }
   }
 }
 
