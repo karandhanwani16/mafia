@@ -6,12 +6,15 @@ import Button from '../common/Button';
 const Chat = ({ onClose, compact = false }) => {
   const { currentRoom } = useSelector((state) => state.room);
   const currentPlayer = useSelector((state) => state.player.currentPlayer);
-  const phase = useSelector((state) => state.game.phase);
+  const { phase, players } = useSelector((state) => state.game);
   const messages = useSelector((state) => state.chat.messages);
   const [input, setInput] = useState('');
   const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
   const socket = getSocket();
+
+  const meInGame = players.find((p) => p.playerId === currentPlayer?.playerId);
+  const isAlive = meInGame?.isAlive !== false;
 
   useEffect(() => {
     const handleError = (data) => {
@@ -31,7 +34,7 @@ const Chat = ({ onClose, compact = false }) => {
     e.preventDefault();
     const roomId = currentRoom?.roomId;
     const playerId = currentPlayer?.playerId;
-    if (!input.trim() || phase === 'night') return;
+    if (!input.trim() || phase === 'night' || !isAlive) return;
     if (!roomId || !playerId) {
       setError('Not in a room. Reconnecting...');
       return;
@@ -85,7 +88,11 @@ const Chat = ({ onClose, compact = false }) => {
         ))}
         <div ref={messagesEndRef} />
       </div>
-      {isNightPhase ? (
+      {!isAlive ? (
+        <div className="text-mafia-muted text-sm text-center py-2">
+          Dead players cannot chat
+        </div>
+      ) : isNightPhase ? (
         <div className="text-mafia-muted text-sm text-center py-2">
           Chat is disabled during night phase
         </div>

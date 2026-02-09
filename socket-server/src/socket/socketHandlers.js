@@ -184,9 +184,12 @@ export const setupSocketHandlers = (io) => {
         const voteCount = getVoteCount(updatedGame);
         io.to(roomId).emit('voteUpdate', { votes: updatedGame.votes || [], voteCount });
         const alivePlayers = updatedGame.players.filter((p) => p.isAlive);
-        const votes = updatedGame.votes || [];
-        const voters = new Set(votes.map((v) => String(v.voterId)));
-        const allAliveVoted = alivePlayers.length > 0 && voters.size >= alivePlayers.length;
+        const votes = Array.isArray(updatedGame.votes) ? updatedGame.votes : [];
+        const voterIds = votes.map((v) => (v && v.voterId != null ? String(v.voterId) : null)).filter(Boolean);
+        const voters = new Set(voterIds);
+        const allAliveVoted =
+          alivePlayers.length > 0 &&
+          alivePlayers.every((p) => p.playerId != null && voters.has(String(p.playerId)));
         if (allAliveVoted) {
           const voteResult = await processVoting(gameId);
           const winCheck = await checkWinConditions(gameId);
@@ -214,11 +217,22 @@ export const setupSocketHandlers = (io) => {
       }
     });
 
-    socket.on('voice:join', (data) => {
+    socket.on('voice:join', async (data) => {
       const roomId = socketRooms.get(socket.id);
       if (!roomId || roomId !== data.roomId) {
         socket.emit('error', { message: 'Not in this room' });
         return;
+      }
+      const playerId = socketPlayers.get(socket.id);
+      if (playerId) {
+        const game = await Game.findOne({ roomId });
+        if (game) {
+          const playerInGame = game.players.find((p) => p.playerId === playerId);
+          if (playerInGame && !playerInGame.isAlive) {
+            socket.emit('error', { message: 'Dead players cannot join voice' });
+            return;
+          }
+        }
       }
       const { username = 'Player' } = data;
       if (!voiceRooms.has(roomId)) voiceRooms.set(roomId, new Map());
@@ -263,6 +277,13 @@ export const setupSocketHandlers = (io) => {
         if (!player) { socket.emit('error', { message: 'Player not found' }); return; }
         const game = await Game.findOne({ roomId });
         if (game && game.phase === 'night') { socket.emit('error', { message: 'Chat is disabled during night phase' }); return; }
+        if (game) {
+          const playerInGame = game.players.find((p) => p.playerId === playerId);
+          if (playerInGame && !playerInGame.isAlive) {
+            socket.emit('error', { message: 'Dead players cannot chat' });
+            return;
+          }
+        }
         io.to(roomId).emit('chatMessage', {
           playerId,
           username: player.username,

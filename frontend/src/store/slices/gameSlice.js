@@ -40,6 +40,8 @@ const gameSlice = createSlice({
       if (action.payload.phase === 'night') {
         state.lastDayDetectiveResult = null;
         state.lastNightEliminated = null;
+        state.votes = [];
+        state.voteCount = {};
       }
     },
     setNightStep: (state, action) => {
